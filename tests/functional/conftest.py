@@ -1,26 +1,29 @@
 import pytest
+import os
 
 from brownie import Token, TokenNoReturn
+
+mnemonic_phrase = os.environ["MNEMONIC_PHRASE"]
 
 
 @pytest.fixture
 def gov(accounts):
-    yield accounts[0]
+    yield accounts.from_mnemonic(mnemonic_phrase, offset=0);
 
 
 @pytest.fixture
 def rewards(accounts):
-    yield accounts[1]
+    yield accounts.from_mnemonic(mnemonic_phrase, offset=1);
 
 
 @pytest.fixture
 def guardian(accounts):
-    yield accounts[2]
+    yield accounts.from_mnemonic(mnemonic_phrase, offset=2);
 
 
 @pytest.fixture
 def management(accounts):
-    yield accounts[3]
+    yield accounts.from_mnemonic(mnemonic_phrase, offset=3);
 
 
 @pytest.fixture
@@ -45,7 +48,7 @@ def create_vault(gov, guardian, rewards, create_token, patch_vault_version):
         if token is None:
             token = create_token()
         vault = patch_vault_version(version).deploy({"from": guardian})
-        vault.initialize(token, governance, rewards, "", "", guardian, governance)
+        vault.initialize(token, governance, rewards, "", "", guardian, governance, {"from": guardian})
         vault.setDepositLimit(2 ** 256 - 1, {"from": governance})
         return vault
 
@@ -65,12 +68,12 @@ def vault(gov, management, token, create_vault):
 
 @pytest.fixture
 def strategist(accounts):
-    yield accounts[4]
+    yield accounts.from_mnemonic(mnemonic_phrase, offset=4);
 
 
 @pytest.fixture
 def keeper(accounts):
-    yield accounts[5]
+    yield accounts.from_mnemonic(mnemonic_phrase, offset=5);
 
 
 @pytest.fixture(params=["RegularStrategy", "ClonedStrategy"])
@@ -99,7 +102,7 @@ def strategy(gov, strategist, keeper, rewards, vault, TestStrategy, request):
 
 @pytest.fixture
 def rando(accounts):
-    yield accounts[9]
+    yield accounts.from_mnemonic(mnemonic_phrase, offset=9);
 
 
 @pytest.fixture

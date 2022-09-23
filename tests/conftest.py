@@ -190,10 +190,3 @@ def sign_vault_permit():
         return owner.sign_message(permit).signature
 
     return sign_vault_permit
-
-
-# Function scoped isolation fixture to enable xdist.
-# Snapshots the chain before each test and reverts after test completion.
-@pytest.fixture(scope="function", autouse=True)
-def shared_setup(fn_isolation):
-    pass
