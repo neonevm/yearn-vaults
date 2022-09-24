@@ -10,3 +10,4 @@ WORKDIR /app
 COPY . .
 RUN yarn install
 RUN brownie compile
+RUN brownie networks add live neon host=http://localhost:9090/solana chainid=111
