@@ -1,6 +1,8 @@
 # use Ganache's forked mainnet mode as the default network
 networks:
   default: development
+  live:
+    default_contract_owner: true
 
 autofetch_sources: true
 
