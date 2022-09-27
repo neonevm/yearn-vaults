@@ -1,0 +1,56 @@
+diff -ur brownie/network/account.py brownie.new/network/account.py
+--- brownie/network/account.py	2022-09-21 11:53:39.000000000 +0200
++++ brownie.new/network/account.py	2022-09-28 00:47:08.000000000 +0200
+@@ -426,7 +426,10 @@
+ 
+         if isinstance(gas_limit, bool) or gas_limit in (None, "auto"):
+             gas_buffer = gas_buffer or CONFIG.active_network["settings"]["gas_buffer"]
+-            gas_limit = self.estimate_gas(to, amount, 0, data or "")
++            try:
++                gas_limit = self.estimate_gas(to, amount, 0, data or "")
++            except:
++                gas_limit = 15000000
+             if gas_limit > 21000 and gas_buffer != 1:
+                 gas_limit = Wei(gas_limit * gas_buffer)
+                 return min(gas_limit, Chain().block_gas_limit)
+@@ -750,7 +753,7 @@
+                 except ValueError as e:
+                     if txid is None:
+                         exc = VirtualMachineError(e)
+-                        if not hasattr(exc, "txid"):
++                        if not hasattr(exc, "txid") or exc.txid == '':
+                             raise exc from None
+                         txid = exc.txid
+                         print(f"\rTransaction sent: {color('bright blue')}{txid}{color}")
+@@ -954,7 +957,8 @@
+ 
+     def _transact(self, tx: Dict, allow_revert: bool) -> None:
+         if allow_revert is None:
+-            allow_revert = bool(CONFIG.network_type == "development")
++            allow_revert = bool(CONFIG.network_type == "development" or
++                CONFIG.active_network["id"] == "neon")
+         if not allow_revert:
+             self._check_for_revert(tx)
+         tx["chainId"] = web3.chain_id
+diff -ur brownie/network/state.py brownie.new/network/state.py
+--- brownie/network/state.py	2022-09-21 11:53:39.000000000 +0200
++++ brownie.new/network/state.py	2022-09-28 00:46:54.000000000 +0200
+@@ -372,11 +372,14 @@
+         """
+         if not isinstance(seconds, int):
+             raise TypeError("seconds must be an integer value")
+-        self._time_offset = int(rpc.Rpc().sleep(seconds))
++        if CONFIG.active_network["id"] == "neon":
++            time.sleep(seconds)
++        else:
++            self._time_offset = int(rpc.Rpc().sleep(seconds))
++            if seconds:
++                self._redo_buffer.clear()
++                self._current_id = rpc.Rpc().snapshot()
+ 
+-        if seconds:
+-            self._redo_buffer.clear()
+-            self._current_id = rpc.Rpc().snapshot()
+ 
+     def mine(self, blocks: int = 1, timestamp: int = None, timedelta: int = None) -> int:
+         """
