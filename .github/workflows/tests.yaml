@@ -4,9 +4,38 @@ on: push
 
 jobs:
   tests:
+    needs: docker-image
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
       - run: ./neon-tests.sh
+
+  docker-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login into gh docker registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/inc4/yearn-vaults
+
+      - uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
