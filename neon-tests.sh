@@ -13,6 +13,8 @@ MNEMONIC_PHRASE="slide clip fancy range predict resource stuff once all insect s
 docker run --rm --network host -e MNEMONIC_PHRASE="$MNEMONIC_PHRASE" \
   ghcr.io/inc4/yearn-vaults:master \
   bash -c "brownie run scripts/neon_faucet.py && \
+    brownie run scripts/neon_faucet.py \
+    brownie run scripts/neon_faucet.py \
     brownie test tests/functional/vault/test_strategies.py -v --network neon && \
     brownie test tests/functional/vault/test_permit.py::test_permit -v --network neon && \
     brownie test tests/functional/strategy/test_strategy_health.py -v --network neon"
