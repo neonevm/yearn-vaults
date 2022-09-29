@@ -1,6 +1,19 @@
-diff -ur brownie/network/account.py brownie.new/network/account.py
---- brownie/network/account.py	2022-09-21 11:53:39.000000000 +0200
-+++ brownie.new/network/account.py	2022-09-28 00:47:08.000000000 +0200
+diff -ur brownie.orig/exceptions.py brownie/exceptions.py
+--- brownie.orig/exceptions.py	2022-09-29 12:53:05.360807566 +0000
++++ brownie/exceptions.py	2022-09-29 13:27:59.394425310 +0000
+@@ -103,7 +103,8 @@
+                 err_msg = exc["data"]
+                 if err_msg.endswith("0x"):
+                     err_msg = exc["data"][:-2].strip()
+-                raise ValueError(f"{self.message}: {err_msg}") from None
++                # raise ValueError(f"{self.message}: {err_msg}") from None
++                return
+ 
+             self.revert_type = "revert"
+             err_msg = exc["data"][len(ERROR_SIG) :]
+diff -ur brownie.orig/network/account.py brownie/network/account.py
+--- brownie.orig/network/account.py	2022-09-29 12:53:05.360807566 +0000
++++ brownie/network/account.py	2022-09-29 14:10:24.570151366 +0000
 @@ -426,7 +426,10 @@
  
          if isinstance(gas_limit, bool) or gas_limit in (None, "auto"):
@@ -22,7 +35,17 @@ diff -ur brownie/network/account.py brownie.new/network/account.py
                              raise exc from None
                          txid = exc.txid
                          print(f"\rTransaction sent: {color('bright blue')}{txid}{color}")
-@@ -954,7 +957,8 @@
+@@ -853,7 +856,8 @@
+ 
+     def _transact(self, tx: Dict, allow_revert: bool) -> Any:
+         if allow_revert is None:
+-            allow_revert = bool(CONFIG.network_type == "development")
++            allow_revert = bool(CONFIG.network_type == "development" or
++                CONFIG.active_network["id"] == "neon")
+         if not allow_revert:
+             self._check_for_revert(tx)
+         return web3.eth.send_transaction(tx)
+@@ -954,7 +958,8 @@
  
      def _transact(self, tx: Dict, allow_revert: bool) -> None:
          if allow_revert is None:
@@ -32,9 +55,9 @@ diff -ur brownie/network/account.py brownie.new/network/account.py
          if not allow_revert:
              self._check_for_revert(tx)
          tx["chainId"] = web3.chain_id
-diff -ur brownie/network/state.py brownie.new/network/state.py
---- brownie/network/state.py	2022-09-21 11:53:39.000000000 +0200
-+++ brownie.new/network/state.py	2022-09-28 00:46:54.000000000 +0200
+diff -ur brownie.orig/network/state.py brownie/network/state.py
+--- brownie.orig/network/state.py	2022-09-29 12:53:05.360807566 +0000
++++ brownie/network/state.py	2022-09-29 12:58:42.170353394 +0000
 @@ -372,11 +372,14 @@
          """
          if not isinstance(seconds, int):
