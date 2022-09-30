@@ -116,7 +116,7 @@ def test_addStrategy1(
         vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
 
 
-@pytest.mark.skip(reason="NEON: {'lastReport': 1664477504} != {'lastReport': 1664477505}")
+@pytest.mark.skip(reason="NEON: time asserts")
 def test_addStrategy2(
     chain,
     gov,
@@ -183,7 +183,7 @@ def test_addStrategy2(
     assert vault.debtRatio() == 10_000
 
 
-@pytest.mark.skip(reason="NEON: {'lastReport': 1664461082} != {'lastReport': 1664461083}")
+@pytest.mark.skip(reason="NEON: time asserts")
 def test_updateStrategy(chain, gov, vault, strategy, rando):
     # Can't update an unapproved strategy
     with brownie.reverts():
@@ -296,7 +296,7 @@ def test_migrateStrategy(gov, vault, strategy, other_strategy, rando, TestStrate
         vault.migrateStrategy(strategy, approved_strategy, {"from": gov})
 
 
-@pytest.mark.skip(reason="NEON: {'lastReport': 1664477504} != {'lastReport': 1664477505}")
+@pytest.mark.skip(reason="NEON: time asserts")
 def test_revokeStrategy(chain, gov, vault, strategy, rando):
     vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
     activation_timestamp = chain[-1]["timestamp"]
