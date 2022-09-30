@@ -20,6 +20,8 @@ docker run --rm --network host -e MNEMONIC_PHRASE="$MNEMONIC_PHRASE" \
       tests/functional/vault/test_strategies.py \
       tests/functional/vault/test_permit.py \
       tests/functional/vault/test_shares.py \
+      tests/functional/vault/test_config.py \
+      tests/functional/vault/test_misc.py \
       tests/functional/strategy/test_strategy_health.py \
       -v --network neon"
 

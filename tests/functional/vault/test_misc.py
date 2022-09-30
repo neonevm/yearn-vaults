@@ -288,8 +288,8 @@ def test_sandwich_attack(
     chain.sleep(1)
     strategy.harvest({"from": strategist})
 
-    chain.sleep(1)
-    chain.mine(1)
+    chain.sleep(5)
+    # chain.mine(1)
 
     # attacker withdraws. Pays back loan. and keeps or sells profit
     vault.withdraw(vault.balanceOf(attacker), {"from": attacker})
