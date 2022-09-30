@@ -37,7 +37,7 @@ def create_token(gov):
     yield create_token
 
 
-@pytest.fixture(params=[("Normal", 18)])
+@pytest.fixture(params=[("Normal", 18), ("NoReturn", 18), ("Normal", 8), ("Normal", 2)])
 def token(create_token, request):
     # NOTE: Run our test suite using both compliant and non-compliant ERC20 Token
     (behaviour, decimal) = request.param
