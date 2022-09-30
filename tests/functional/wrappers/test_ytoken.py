@@ -85,9 +85,9 @@ def test_withdraw(token, registry, vault, ytoken, gov, rando):
     assert token.balanceOf(rando) == 10000
 
 
-@pytest.mark.skip(reason="NEON: TODO")
-def test_migrate(token, registry, create_vault, sign_vault_permit, ytoken, gov):
-    rando = Account.create()
+def test_migrate(token, registry, create_vault, sign_vault_permit, ytoken, gov, rando):
+    # convert brownie LocalAccount to eth_account
+    rando = Account.privateKeyToAccount(rando.private_key)
     token.transfer(rando.address, 10000, {"from": gov})
     token.approve(ytoken, 10000, {"from": rando.address})
 
