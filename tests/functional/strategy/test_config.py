@@ -40,7 +40,7 @@ def test_strategy_no_reinit(strategist, vault, TestStrategy):
         strategy.initialize(vault, strategist, strategist, strategist)
 
 
-def test_strategy_setEmergencyExit(strategy, gov, strategist, rando, chain):
+def test_strategy_setEmergencyExit1(strategy, gov, strategist, rando, chain):
     # Only governance or strategist can set this param
     with brownie.reverts():
         strategy.setEmergencyExit({"from": rando})
@@ -49,8 +49,12 @@ def test_strategy_setEmergencyExit(strategy, gov, strategist, rando, chain):
     strategy.setEmergencyExit({"from": gov})
     assert strategy.emergencyExit()
 
-    # Can only set this once
-    chain.undo()
+
+def test_strategy_setEmergencyExit2(strategy, gov, strategist, rando, chain):
+    # Only governance or strategist can set this param
+    with brownie.reverts():
+        strategy.setEmergencyExit({"from": rando})
+    assert not strategy.emergencyExit()
 
     strategy.setEmergencyExit({"from": strategist})
     assert strategy.emergencyExit()

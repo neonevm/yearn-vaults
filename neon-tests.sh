@@ -28,6 +28,8 @@ docker run --rm --network host -e MNEMONIC_PHRASE="$MNEMONIC_PHRASE" \
       tests/functional/registry/test_release.py \
       tests/functional/wrappers \
       tests/functional/strategy/test_strategy_health.py \
+      tests/functional/strategy/test_clone.py \
+      tests/functional/strategy/test_config.py \
       -v --network neon"
 
 # Stop Neon
