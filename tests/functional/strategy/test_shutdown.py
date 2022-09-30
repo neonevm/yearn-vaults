@@ -4,6 +4,7 @@ import brownie
 DAY = 86400  # seconds
 
 
+@pytest.mark.skip(reason="NEON: long sleep")
 def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
     # NOTE: totalSupply matches total investment at t = 0
     initial_investment = vault.totalSupply()
@@ -64,6 +65,7 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
 
 
 @pytest.mark.parametrize("withSurplus", [True, False])
+@pytest.mark.skip(reason="NEON: long sleep")
 def test_emergency_exit(token, gov, vault, strategy, keeper, chain, withSurplus):
     # NOTE: totalSupply matches total investment at t = 0
     initial_investment = vault.totalSupply()

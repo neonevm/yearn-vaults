@@ -1,6 +1,7 @@
 DAY = 86400  # seconds
 
 
+@pytest.mark.skip(reason="NEON: long sleep")
 def test_startup(token, gov, vault, strategy, keeper, chain):
     debt_per_harvest = (
         (vault.totalAssets() - vault.totalDebt()) * (vault.debtRatio() / 10_000)
