@@ -3,27 +3,29 @@ import os
 
 from brownie import Token, TokenNoReturn
 
-mnemonic_phrase = os.environ["MNEMONIC_PHRASE"]
-
 
 @pytest.fixture
 def gov(accounts):
-    yield accounts.from_mnemonic(mnemonic_phrase, offset=0);
+    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
+    yield accounts[0]
 
 
 @pytest.fixture
 def rewards(accounts):
-    yield accounts.from_mnemonic(mnemonic_phrase, offset=1);
+    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
+    yield accounts[1]
 
 
 @pytest.fixture
 def guardian(accounts):
-    yield accounts.from_mnemonic(mnemonic_phrase, offset=2);
+    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
+    yield accounts[2]
 
 
 @pytest.fixture
 def management(accounts):
-    yield accounts.from_mnemonic(mnemonic_phrase, offset=3);
+    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
+    yield accounts[3]
 
 
 @pytest.fixture
@@ -35,7 +37,7 @@ def create_token(gov):
     yield create_token
 
 
-@pytest.fixture(params=[("Normal", 18), ("NoReturn", 18), ("Normal", 8), ("Normal", 2)])
+@pytest.fixture(params=[("Normal", 18)])
 def token(create_token, request):
     # NOTE: Run our test suite using both compliant and non-compliant ERC20 Token
     (behaviour, decimal) = request.param
@@ -68,12 +70,14 @@ def vault(gov, management, token, create_vault):
 
 @pytest.fixture
 def strategist(accounts):
-    yield accounts.from_mnemonic(mnemonic_phrase, offset=4);
+    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
+    yield accounts[4]
 
 
 @pytest.fixture
 def keeper(accounts):
-    yield accounts.from_mnemonic(mnemonic_phrase, offset=5);
+    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
+    yield accounts[5]
 
 
 @pytest.fixture(params=["RegularStrategy", "ClonedStrategy"])
@@ -102,7 +106,8 @@ def strategy(gov, strategist, keeper, rewards, vault, TestStrategy, request):
 
 @pytest.fixture
 def rando(accounts):
-    yield accounts.from_mnemonic(mnemonic_phrase, offset=9);
+    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
+    yield accounts[9]
 
 
 @pytest.fixture
