@@ -26,13 +26,12 @@ def test_losses(chain, vault, strategy, gov, token):
     token.approve(vault, 2 ** 256 - 1, {"from": gov})
     vault.deposit(5000, {"from": gov})
 
-    chain.sleep(DAY // 10)
     chain.sleep(1)
     strategy.harvest({"from": gov})
     assert token.balanceOf(strategy) == 500
 
     # First loss
-    chain.sleep(DAY // 10)
+    chain.sleep(1)
     strategy._takeFunds(100, {"from": gov})
     vault.deposit(100, {"from": gov})  # NOTE: total assets doesn't change
     chain.sleep(1)
@@ -42,7 +41,7 @@ def test_losses(chain, vault, strategy, gov, token):
     assert params["totalDebt"] == 400
 
     # Harder second loss
-    chain.sleep(DAY // 10)
+    chain.sleep(1)
     strategy._takeFunds(300, {"from": gov})
     vault.deposit(300, {"from": gov})  # NOTE: total assets doesn't change
     chain.sleep(1)
@@ -52,7 +51,7 @@ def test_losses(chain, vault, strategy, gov, token):
     assert params["totalDebt"] == 100
 
     # Strike three
-    chain.sleep(DAY // 10)
+    chain.sleep(1)
     assert token.balanceOf(strategy) == 100
     strategy._takeFunds(100, {"from": gov})
     vault.deposit(100, {"from": gov})  # NOTE: total assets doesn't change
@@ -64,6 +63,7 @@ def test_losses(chain, vault, strategy, gov, token):
     assert params["totalDebt"] == 0
 
 
+@pytest.mark.skip(reason="NEON: no private key for contract")
 def test_total_loss(chain, vault, strategy, gov, token):
     vault.addStrategy(strategy, 10_000, 0, 2 ** 256 - 1, 1_000, {"from": gov})
     token.approve(vault, 2 ** 256 - 1, {"from": gov})
@@ -83,6 +83,7 @@ def test_total_loss(chain, vault, strategy, gov, token):
     assert params["debtRatio"] == 0
 
 
+@pytest.mark.skip(reason="NEON: no private key for contract")
 def test_loss_should_be_removed_from_locked_profit(chain, vault, strategy, gov, token):
     vault.setLockedProfitDegradation(1e10, {"from": gov})
 

@@ -19,11 +19,7 @@ docker run --rm --network host -e MNEMONIC_PHRASE="$MNEMONIC_PHRASE" \
     brownie run scripts/neon_faucet.py --network neon && \
     brownie run scripts/neon_faucet.py --network neon && \
     brownie test \
-      tests/functional/vault/test_strategies.py \
-      tests/functional/vault/test_permit.py \
-      tests/functional/vault/test_shares.py \
-      tests/functional/vault/test_config.py \
-      tests/functional/vault/test_misc.py \
+      tests/functional/vault \
       tests/functional/registry/test_config.py \
       tests/functional/registry/test_release.py \
       tests/functional/wrappers \

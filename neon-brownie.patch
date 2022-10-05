@@ -77,3 +77,13 @@ diff -ur brownie.orig/network/state.py brownie/network/state.py
  
      def mine(self, blocks: int = 1, timestamp: int = None, timedelta: int = None) -> int:
          """
+@@ -417,6 +420,10 @@
+             duration = (timestamp - now) / (blocks - 1)
+             params = [[round(now + duration * i)] for i in range(blocks)]
+
++        if CONFIG.active_network["id"] == "neon":
++            self.sleep(blocks)
++            return
++
+         for i in range(blocks):
+             rpc.Rpc().mine(*params[i])
