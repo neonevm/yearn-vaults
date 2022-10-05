@@ -52,11 +52,13 @@ def test_deployment_management(
 
     # You can deploy proxy Vaults, linked to the latest release
     assert registry.numTokens() == 1
-    proxy_vault = Vault.at(
-        registry.newVault(
-            v1_token, guardian, rewards, "", "", {"from": gov}
-        ).return_value
+    res = registry.newVault.call(
+        v1_token, guardian, rewards, "", "", {"from": gov}
     )
+    registry.newVault(
+        v1_token, guardian, rewards, "", "", {"from": gov}
+    )
+    proxy_vault = Vault.at(res)
     assert proxy_vault.apiVersion() == v2_vault.apiVersion() == "2.0.0"
     assert proxy_vault.rewards() == rewards
     assert proxy_vault.guardian() == guardian
@@ -67,11 +69,13 @@ def test_deployment_management(
 
     # You can deploy proxy Vaults, linked to a previous release
     v2_token = create_token()
-    proxy_vault = Vault.at(
-        registry.newVault(
-            v2_token, guardian, rewards, "", "", 1, {"from": gov}
-        ).return_value
+    res = registry.newVault.call(
+        v2_token, guardian, rewards, "", "", 1, {"from": gov}
     )
+    registry.newVault(
+        v2_token, guardian, rewards, "", "", 1, {"from": gov}
+    )
+    proxy_vault = Vault.at(res)
     assert proxy_vault.apiVersion() == v1_vault.apiVersion() == "1.0.0"
     assert proxy_vault.rewards() == rewards
     assert proxy_vault.guardian() == guardian
@@ -100,11 +104,13 @@ def test_experimental_deployments(
     registry.newExperimentalVault(token, rando, rando, rando, "", "", {"from": rando})
 
     # You can make as many experiments as you want with same api version
-    experimental_vault = Vault.at(
-        registry.newExperimentalVault(
-            token, rando, rando, rando, "", "", {"from": rando}
-        ).return_value
+    res = registry.newExperimentalVault.call(
+        token, rando, rando, rando, "", "", {"from": rando}
     )
+    registry.newExperimentalVault(
+        token, rando, rando, rando, "", "", {"from": rando}
+    )
+    experimental_vault = Vault.at(res)
 
     # Experimental Vaults do not count towards deployments
     with brownie.reverts():
@@ -132,11 +138,13 @@ def test_experimental_deployments(
     assert registry.numTokens() == 1
 
     # You can't endorse a vault if it would overwrite a current deployment
-    experimental_vault = Vault.at(
-        registry.newExperimentalVault(
-            token, gov, gov, gov, "", "", {"from": rando}
-        ).return_value
+    res = registry.newExperimentalVault.call(
+        token, gov, gov, gov, "", "", {"from": rando}
     )
+    registry.newExperimentalVault(
+        token, gov, gov, gov, "", "", {"from": rando}
+    )
+    experimental_vault = Vault.at(res)
     with brownie.reverts():
         registry.endorseVault(experimental_vault, {"from": gov})
 
@@ -144,21 +152,25 @@ def test_experimental_deployments(
     v2_vault = create_vault(version="2.0.0")
     registry.newRelease(v2_vault, {"from": gov})
 
-    experimental_vault = Vault.at(
-        registry.newExperimentalVault(
-            token, gov, gov, gov, "", "", {"from": rando}
-        ).return_value
+    res = registry.newExperimentalVault.call(
+        token, gov, gov, gov, "", "", {"from": rando}
     )
+    registry.newExperimentalVault(
+        token, gov, gov, gov, "", "", {"from": rando}
+    )
+    experimental_vault = Vault.at(res)
     registry.endorseVault(experimental_vault, {"from": gov})
     assert registry.latestVault(token) == experimental_vault
 
     # Can create an experiment and endorse it targeting a previous version
     token = create_token()
-    experimental_vault = Vault.at(
-        registry.newExperimentalVault(
-            token, gov, gov, gov, "", "", 1, {"from": rando}
-        ).return_value
+    res = registry.newExperimentalVault.call(
+        token, gov, gov, gov, "", "", 1, {"from": rando}
     )
+    registry.newExperimentalVault(
+        token, gov, gov, gov, "", "", 1, {"from": rando}
+    )
+    experimental_vault = Vault.at(res)
     registry.endorseVault(experimental_vault, 1, {"from": gov})
     assert registry.latestVault(token) == experimental_vault
 
