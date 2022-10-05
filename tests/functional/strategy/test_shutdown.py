@@ -4,7 +4,6 @@ import brownie
 DAY = 86400  # seconds
 
 
-@pytest.mark.skip(reason="NEON: long sleep")
 def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
     # NOTE: totalSupply matches total investment at t = 0
     initial_investment = vault.totalSupply()
@@ -30,7 +29,7 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
     )
     assert not debt_limit_hit()
     while not debt_limit_hit():
-        chain.sleep(DAY)
+        # chain.sleep(DAY)
         add_yield()
         chain.sleep(1)
         strategy.harvest({"from": keeper})
@@ -41,7 +40,7 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
     # Watch the strategy repay all its debt over time
     last_balance = token.balanceOf(strategy)
     while token.balanceOf(strategy) > 0:
-        chain.sleep(DAY)
+        # chain.sleep(DAY)
         add_yield()  # We're still vested on our positions!
         strategy.harvest({"from": keeper})
 
@@ -65,7 +64,6 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
 
 
 @pytest.mark.parametrize("withSurplus", [True, False])
-@pytest.mark.skip(reason="NEON: long sleep")
 def test_emergency_exit(token, gov, vault, strategy, keeper, chain, withSurplus):
     # NOTE: totalSupply matches total investment at t = 0
     initial_investment = vault.totalSupply()
@@ -92,7 +90,7 @@ def test_emergency_exit(token, gov, vault, strategy, keeper, chain, withSurplus)
     )
     assert not debt_limit_hit()
     while not debt_limit_hit():
-        chain.sleep(DAY)
+        # chain.sleep(DAY)
         add_yield()
         chain.sleep(1)
         strategy.harvest({"from": keeper})
@@ -113,7 +111,7 @@ def test_emergency_exit(token, gov, vault, strategy, keeper, chain, withSurplus)
     # Watch the strategy repay the rest of its debt over time
     last_balance = token.balanceOf(strategy)
     while token.balanceOf(strategy) > 0:
-        chain.sleep(DAY)
+        # chain.sleep(DAY)
         strategy.harvest({"from": keeper})
 
         # Make sure we are divesting
@@ -131,7 +129,7 @@ def test_emergency_exit(token, gov, vault, strategy, keeper, chain, withSurplus)
     assert token.balanceOf(vault) == initial_investment + strategyReturn - stolen_funds
 
 
-def test_set_emergency_exit_authority(
+def test_set_emergency_exit_authority1(
     strategy, gov, strategist, keeper, rando, management, guardian
 ):
     # Can only setEmergencyExit as governance, strategist, vault management and guardian
@@ -140,9 +138,36 @@ def test_set_emergency_exit_authority(
     with brownie.reverts("!authorized"):
         strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": gov})
-    brownie.chain.undo()
+
+
+def test_set_emergency_exit_authority2(
+    strategy, gov, strategist, keeper, rando, management, guardian
+):
+    # Can only setEmergencyExit as governance, strategist, vault management and guardian
+    with brownie.reverts("!authorized"):
+        strategy.setEmergencyExit({"from": keeper})
+    with brownie.reverts("!authorized"):
+        strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": strategist})
-    brownie.chain.undo()
+
+
+def test_set_emergency_exit_authority3(
+    strategy, gov, strategist, keeper, rando, management, guardian
+):
+    # Can only setEmergencyExit as governance, strategist, vault management and guardian
+    with brownie.reverts("!authorized"):
+        strategy.setEmergencyExit({"from": keeper})
+    with brownie.reverts("!authorized"):
+        strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": management})
-    brownie.chain.undo()
+
+
+def test_set_emergency_exit_authority4(
+    strategy, gov, strategist, keeper, rando, management, guardian
+):
+    # Can only setEmergencyExit as governance, strategist, vault management and guardian
+    with brownie.reverts("!authorized"):
+        strategy.setEmergencyExit({"from": keeper})
+    with brownie.reverts("!authorized"):
+        strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": guardian})
