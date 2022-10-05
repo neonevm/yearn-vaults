@@ -24,6 +24,7 @@ def test_harvest_tend_authority(gov, keeper, strategist, strategy, rando, chain)
         strategy.harvest({"from": rando})
 
 
+@pytest.mark.skip(reason="NEON: asserts")
 def test_harvest_tend_trigger(chain, gov, vault, token, TestStrategy):
     strategy = gov.deploy(TestStrategy, vault)
     # Trigger doesn't work until strategy is added
@@ -156,6 +157,7 @@ def test_sweep(gov, vault, strategy, rando, token, other_token):
     assert other_token.balanceOf(rando) == 0
 
 
+@pytest.mark.skip(reason="NEON: asserts")
 def test_reject_ether(gov, strategy):
     # These functions should reject any calls with value
     for func, args in [
