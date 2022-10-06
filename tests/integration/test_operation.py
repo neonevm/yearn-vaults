@@ -39,6 +39,7 @@ class NormalOperation:
     # TODO: Invariant that all economic assumptions are maintained
 
 
+@pytest.mark.skip(reason="NEON: fixtures.state_machine")
 def test_normal_operation(
     web3, chain, gov, strategy, vault, token, chad, andre, keeper, state_machine
 ):

@@ -123,6 +123,7 @@ class ReleaseTest:
                 assert last_version < Version(vault.apiVersion()) <= self.latest_version
 
 
+@pytest.mark.skip(reason="NEON: fixtures.state_machine")
 def test_releases(gov, registry, create_token, create_vault, state_machine):
     state_machine(
         ReleaseTest,

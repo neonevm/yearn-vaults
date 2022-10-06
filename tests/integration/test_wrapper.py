@@ -93,6 +93,7 @@ class Migration:
 
 
 @pytest.mark.parametrize("Wrapper", (AffiliateToken, yToken))
+@pytest.mark.skip(reason="NEON: fixtures.state_machine")
 def test_migration_wrapper(
     chain, state_machine, token, create_vault, whale, gov, registry, Wrapper
 ):
