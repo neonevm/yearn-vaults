@@ -1,3 +1,5 @@
+import pytest
+
 from semantic_version import Version
 
 from brownie.test import strategy
