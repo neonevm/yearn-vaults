@@ -2,7 +2,7 @@ import pytest
 import brownie
 
 
-@pytest.mark.skip(reason="NEON: call from another contract")
+@pytest.mark.skip(reason="NEON: no private key for contract")
 def test_withdraw(chain, gov, token, vault, strategy, rando):
     token.approve(vault, token.balanceOf(gov), {"from": gov})
     vault.deposit(token.balanceOf(gov) // 2, {"from": gov})
