@@ -73,7 +73,6 @@ def test_max_fees(gov, vault, token, TestStrategy, rewards, strategist):
         vault.updateStrategyPerformanceFee(strategy, FEE_MAX / 2 + 1, {"from": gov})
 
 
-@pytest.mark.skip(reason="NEON: long sleep")
 def test_delegated_fees(chain, rewards, vault, strategy, gov, token):
     # Make sure funds are in the strategy
     chain.sleep(1)
@@ -86,7 +85,8 @@ def test_delegated_fees(chain, rewards, vault, strategy, gov, token):
 
     # Management fee is active...
     bal_before = vault.balanceOf(rewards)
-    chain.mine(timedelta=60 * 60 * 24 * 365)  # Mine a year at 2% mgmt fee
+    chain.sleep(5)
+    # chain.mine(timedelta=60 * 60 * 24 * 365)  # Mine a year at 2% mgmt fee
     token.transfer(strategy, 10 ** token.decimals())
     strategy.harvest()
     assert vault.balanceOf(rewards) > bal_before  # increase in mgmt fees
@@ -97,13 +97,13 @@ def test_delegated_fees(chain, rewards, vault, strategy, gov, token):
 
     # Delegated assets pay no fees (everything is delegated now)
     bal_before = vault.balanceOf(rewards)
-    chain.mine(timedelta=60 * 60 * 24 * 365)  # Mine a year at 0% mgmt fee
+    chain.sleep(5)
+    # chain.mine(timedelta=60 * 60 * 24 * 365)  # Mine a year at 0% mgmt fee
     token.transfer(strategy, 10 ** token.decimals())
     strategy.harvest()
     assert vault.balanceOf(rewards) == bal_before  # No increase in mgmt fees
 
 
-@pytest.mark.skip(reason="NEON: long sleep")
 def test_gain_less_than_fees(chain, rewards, vault, strategy, gov, token):
     chain.sleep(1)
     # Make sure funds are in the strategy
@@ -119,7 +119,8 @@ def test_gain_less_than_fees(chain, rewards, vault, strategy, gov, token):
     # Performance fees set to standard 10%
     vault.setPerformanceFee(1000, {"from": gov})
     vault.updateStrategyPerformanceFee(strategy, 1000, {"from": gov})
-    chain.mine(timedelta=60 * 60 * 24 * 365)  # Mine a year at 2% mgmt fee
+    chain.sleep(5)
+    # chain.mine(timedelta=60 * 60 * 24 * 365)  # Mine a year at 2% mgmt fee
     price_per_share_before = vault.pricePerShare()
     strategy.harvest()
 
