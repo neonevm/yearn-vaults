@@ -18,19 +18,7 @@ docker run --rm --network host -e MNEMONIC_PHRASE="$MNEMONIC_PHRASE" \
     brownie run scripts/neon_faucet.py --network neon && \
     brownie run scripts/neon_faucet.py --network neon && \
     brownie run scripts/neon_faucet.py --network neon && \
-    brownie test \
-      tests/functional/vault \
-      tests/functional/registry \
-      tests/functional/wrappers \
-      tests/functional/strategy/test_strategy_health.py \
-      tests/functional/strategy/test_clone.py \
-      tests/functional/strategy/test_config.py \
-      tests/functional/strategy/test_fees.py \
-      tests/functional/strategy/test_misc.py \
-      tests/functional/strategy/test_startup.py \
-      tests/functional/strategy/test_shutdown.py \
-      tests/functional/strategy/test_withdrawal.py \
-      -v --network neon"
+    brownie test -v --network neon"
 
 # Stop Neon
 docker-compose -f docker-compose-test.yml down
