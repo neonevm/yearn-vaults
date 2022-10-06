@@ -3,7 +3,6 @@ import pytest
 DAY = 86400  # seconds
 
 
-@pytest.mark.skip(reason="NEON: long sleep")
 def test_startup(token, gov, vault, strategy, keeper, chain):
     debt_per_harvest = (
         (vault.totalAssets() - vault.totalDebt()) * (vault.debtRatio() / 10_000)
@@ -27,7 +26,7 @@ def test_startup(token, gov, vault, strategy, keeper, chain):
     )
 
     # Take on debt
-    chain.mine(timestamp=chain.time() + DAY)
+    # chain.mine(timestamp=chain.time() + DAY)
     assert vault.expectedReturn(strategy) == 0
     chain.sleep(1)
     strategy.harvest({"from": keeper})
@@ -46,7 +45,8 @@ def test_startup(token, gov, vault, strategy, keeper, chain):
     )
 
     # We have 1 data point for E[R] calc w/ no profits, so E[R] = 0
-    chain.mine(timestamp=chain.time() + DAY)
+    chain.sleep(1)
+    # chain.mine(timestamp=chain.time() + DAY)
     assert expectedReturn() == 0
 
     profit = token.balanceOf(strategy) // 50
@@ -79,7 +79,8 @@ def test_startup(token, gov, vault, strategy, keeper, chain):
     assert not debt_limit_hit()
     while not debt_limit_hit():
 
-        chain.mine(timestamp=chain.time() + DAY)
+        chain.sleep(1)
+        # chain.mine(timestamp=chain.time() + DAY)
         assert expectedReturn() > 0
         token.transfer(strategy, expectedReturn(), {"from": gov})
         chain.sleep(1)
