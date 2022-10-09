@@ -21,10 +21,7 @@ docker run --rm --network host -e MNEMONIC_PHRASE="$MNEMONIC_PHRASE" \
     brownie run scripts/neon_faucet.py --network neon && \
     brownie run scripts/neon_faucet.py --network neon && \
     brownie test -v -C \
-      tests/integration \
-      tests/functional/registry \
-      tests/functional/strategy \
-      tests/functional/wrappers \
+      tests/functional/vault \
     --network neon"
 
 # Stop Neon

@@ -6,12 +6,20 @@ jobs:
   tests:
     needs: docker-image
     runs-on: ubuntu-latest
-    timeout-minutes: 720
 
     steps:
       - uses: actions/checkout@v3
 
       - run: ./neon-tests.sh
+
+  tests2:
+    needs: docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: ./neon-tests2.sh
 
   docker-image:
     runs-on: ubuntu-latest
