@@ -47,13 +47,12 @@ def test_multiple_withdrawals(token, gov, Vault, TestStrategy, chain):
     for s in strategies:  # No change
         assert s.estimatedTotalAssets() == token.balanceOf(s) == starting_balance // 10
 
-    # NEON: issue with too many accounts
     # We've drained all the debt
-#    vault.withdraw(vault.balanceOf(gov), {"from": gov})
-#    assert vault.totalDebt() == 0
-#    for s in strategies:
-#        assert s.estimatedTotalAssets() == 0
-#        assert token.balanceOf(s) == 0
+    vault.withdraw(vault.balanceOf(gov), {"from": gov})
+    assert vault.totalDebt() == 0
+    for s in strategies:
+        assert s.estimatedTotalAssets() == 0
+        assert token.balanceOf(s) == 0
 
 
 def test_forced_withdrawal1(token, gov, vault, TestStrategy, rando, chain):
