@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -26,6 +27,12 @@ def arg_types(args):
         {k: v for k, v in arg.items() if k not in ("internalType", "name")}
         for arg in args
     ]
+
+
+@pytest.fixture(autouse=True, scope="session")
+def prepare_accounts(accounts):
+    for acc in os.environ["ACCOUNTS"].split(","):
+        accounts.add(acc)
 
 
 @pytest.fixture

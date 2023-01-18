@@ -1,35 +1,28 @@
-import eth_account
 import pytest
-import os
 
 from brownie import Token, TokenNoReturn
 
 
 @pytest.fixture
-def gov():
-    key = os.environ["ACCOUNTS"].split(",")[0]
-    yield eth_account.account.Account.from_key(key)
+def gov(accounts):
+    yield accounts[0]
 
 
 @pytest.fixture
-def rewards():
-    key = os.environ["ACCOUNTS"].split(",")[1]
-    yield eth_account.account.Account.from_key(key)
+def rewards(accounts):
+    yield accounts[1]
 
 
 
 @pytest.fixture
-def guardian():
-    key = os.environ["ACCOUNTS"].split(",")[2]
-    yield eth_account.account.Account.from_key(key)
-
+def guardian(accounts):
+    yield accounts[2]
 
 
 
 @pytest.fixture
-def management():
-    key = os.environ["ACCOUNTS"].split(",")[3]
-    yield eth_account.account.Account.from_key(key)
+def management(accounts):
+    yield accounts[3]
 
 
 
@@ -74,17 +67,13 @@ def vault(gov, management, token, create_vault):
 
 
 @pytest.fixture
-def strategist():
-    key = os.environ["ACCOUNTS"].split(",")[4]
-    yield eth_account.account.Account.from_key(key)
-
+def strategist(accounts):
+    yield accounts[4]
 
 
 @pytest.fixture
-def keeper():
-    key = os.environ["ACCOUNTS"].split(",")[5]
-    yield eth_account.account.Account.from_key(key)
-
+def keeper(accounts):
+    yield accounts[5]
 
 
 
@@ -113,10 +102,8 @@ def strategy(gov, strategist, keeper, rewards, vault, TestStrategy, request):
 
 
 @pytest.fixture
-def rando():
-    key = os.environ["ACCOUNTS"].split(",")[9]
-    yield eth_account.account.Account.from_key(key)
-
+def rando(accounts):
+    yield accounts[9]
 
 
 @pytest.fixture
