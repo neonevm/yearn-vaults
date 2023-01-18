@@ -5,27 +5,25 @@ from brownie import Token, TokenNoReturn
 
 
 @pytest.fixture
-def gov(accounts):
-    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
-    yield accounts[0]
+def gov():
+    yield os.environ["ACCOUNTS"].split(",")[0]
 
 
 @pytest.fixture
-def rewards(accounts):
-    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
-    yield accounts[1]
+def rewards():
+    yield os.environ["ACCOUNTS"].split(",")[1]
 
-
-@pytest.fixture
-def guardian(accounts):
-    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
-    yield accounts[2]
 
 
 @pytest.fixture
-def management(accounts):
-    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
-    yield accounts[3]
+def guardian():
+    yield os.environ["ACCOUNTS"].split(",")[2]
+
+
+
+@pytest.fixture
+def management():
+    yield os.environ["ACCOUNTS"].split(",")[3]
 
 
 @pytest.fixture
@@ -69,15 +67,14 @@ def vault(gov, management, token, create_vault):
 
 
 @pytest.fixture
-def strategist(accounts):
-    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
-    yield accounts[4]
+def strategist():
+    yield os.environ["ACCOUNTS"].split(",")[4]
 
 
 @pytest.fixture
-def keeper(accounts):
-    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
-    yield accounts[5]
+def keeper():
+    yield os.environ["ACCOUNTS"].split(",")[5]
+
 
 
 @pytest.fixture(params=["RegularStrategy", "ClonedStrategy"])
@@ -105,9 +102,8 @@ def strategy(gov, strategist, keeper, rewards, vault, TestStrategy, request):
 
 
 @pytest.fixture
-def rando(accounts):
-    accounts.from_mnemonic(os.environ["MNEMONIC_PHRASE"], 10)
-    yield accounts[9]
+def rando():
+    yield os.environ["ACCOUNTS"].split(",")[9]
 
 
 @pytest.fixture
