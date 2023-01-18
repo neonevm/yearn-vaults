@@ -12,4 +12,5 @@ WORKDIR /app
 COPY . .
 RUN yarn install
 RUN brownie compile
-RUN brownie networks add live neon host=$PROXY_URL chainid=111
+ARG PROXY_URL
+RUN brownie networks add live neon host="$PROXY_URL" chainid=111
