@@ -6,7 +6,7 @@ RUN yarn global add ganache-cli@6.12.1
 
 RUN pip3 install eth-brownie
 COPY neon-brownie.patch /tmp/
-RUN cd /usr/local/lib/python3.10/site-packages && patch -p0 < /tmp/neon-brownie.patch
+RUN cd /usr/local/lib/python3.10/site-packages && patch -p0 < /tmp/neon-brownie.patch && patch -p0 < /tmp/neon-brownie2.patch
 
 WORKDIR /app
 COPY . .
