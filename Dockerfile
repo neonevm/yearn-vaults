@@ -13,4 +13,4 @@ COPY . .
 RUN yarn install
 RUN brownie compile
 ARG PROXY_URL
-RUN brownie networks add live neon host="$PROXY_URL" chainid=111
+RUN brownie networks add live neon host="$PROXY_URL" chainid=111 timeout=60
