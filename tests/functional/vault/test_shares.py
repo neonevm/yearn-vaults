@@ -65,7 +65,7 @@ def test_deposit_all_and_withdraw_all(gov, vault, token):
     assert token.balanceOf(gov) == balance
 
 
-def test_deposit_withdraw(gov, vault, token):
+def test_deposit_withdraw(gov, vault, token, report):
     balance = token.balanceOf(gov)
     token.approve(vault, balance, {"from": gov})
     vault.deposit(balance // 2, {"from": gov})
@@ -75,7 +75,7 @@ def test_deposit_withdraw(gov, vault, token):
     assert vault.pricePerShare() == 10 ** token.decimals()  # 1:1 price
 
     # Do it twice to test behavior when it has shares
-    vault.deposit({"from": gov})
+    tx = vault.deposit({"from": gov})
 
     assert vault.totalSupply() == token.balanceOf(vault) == balance
     assert vault.totalDebt() == 0
@@ -95,6 +95,8 @@ def test_deposit_withdraw(gov, vault, token):
     assert vault.totalSupply() == token.balanceOf(vault) == 0
     assert vault.totalDebt() == 0
     assert token.balanceOf(gov) == balance
+
+    report.add_action("Deposit vault", tx.gas_used, tx.gas_price, tx.txid)
 
 
 def test_deposit_limit(gov, token, vault):

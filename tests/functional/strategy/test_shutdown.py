@@ -4,7 +4,7 @@ import brownie
 DAY = 86400  # seconds
 
 
-def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
+def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain, report):
     # NOTE: totalSupply matches total investment at t = 0
     initial_investment = vault.totalSupply()
     vault.updateStrategyMaxDebtPerHarvest(
@@ -35,7 +35,7 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
         strategy.harvest({"from": keeper})
 
     # Call for a shutdown
-    vault.setEmergencyShutdown(True, {"from": gov})
+    tx = vault.setEmergencyShutdown(True, {"from": gov})
 
     # Watch the strategy repay all its debt over time
     last_balance = token.balanceOf(strategy)
@@ -61,6 +61,8 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain):
     strategyReturn = vault.strategies(strategy).dict()["totalGain"]
     assert strategyReturn > 0
     assert token.balanceOf(vault) == initial_investment + strategyReturn
+
+    report.add_action("Emergency shutdown", tx.gas_used, tx.gas_price, tx.txid)
 
 
 @pytest.mark.parametrize("withSurplus", [True, False])

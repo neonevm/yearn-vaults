@@ -4,7 +4,7 @@ from brownie import ZERO_ADDRESS
 
 
 def test_good_migration(
-    token, strategy, vault, gov, strategist, guardian, TestStrategy, rando, chain
+    token, strategy, vault, gov, strategist, guardian, TestStrategy, rando, chain, report
 ):
     # Call this once to seed the strategy with debt
     chain.sleep(1)
@@ -25,7 +25,7 @@ def test_good_migration(
     with brownie.reverts():
         vault.migrateStrategy(strategy, new_strategy, {"from": guardian})
 
-    vault.migrateStrategy(strategy, new_strategy, {"from": gov})
+    tx = vault.migrateStrategy(strategy, new_strategy, {"from": gov})
     assert (
         vault.strategies(strategy).dict()["totalDebt"] == token.balanceOf(strategy) == 0
     )
@@ -37,6 +37,8 @@ def test_good_migration(
 
     with brownie.reverts():
         new_strategy.migrate(strategy, {"from": gov})
+
+    report.add_action("Migrate strategy", tx.gas_used, tx.gas_price, tx.txid)
 
 
 def test_bad_migration(

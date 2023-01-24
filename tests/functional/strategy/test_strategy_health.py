@@ -22,7 +22,7 @@ def test_set_do_health_check(gov, rando, strategy):
     strategy.setDoHealthCheck(True, {"from": gov})
 
 
-def test_strategy_harvest1(vault, gov, strategy, token, common_health_check, chain):
+def test_strategy_harvest1(vault, gov, strategy, token, common_health_check, chain, report):
     chain.sleep(10)
     strategy.harvest()
     strategy.setHealthCheck(common_health_check, {"from": gov})
@@ -30,7 +30,9 @@ def test_strategy_harvest1(vault, gov, strategy, token, common_health_check, cha
     # Small gain doesn't trigger
     balance = strategy.estimatedTotalAssets()
     token.transfer(strategy, balance * 0.02)
-    strategy.harvest()
+    tx = strategy.harvest()
+
+    report.add_action("Call strategy harvest", tx.gas_used, tx.gas_price, tx.txid)
 
 
 def test_strategy_harvest2(vault, gov, strategy, token, common_health_check, chain):
@@ -51,7 +53,7 @@ def test_strategy_harvest2(vault, gov, strategy, token, common_health_check, cha
 
 def test_strategy_harvest3(vault, gov, strategy, token, common_health_check, chain):
     chain.sleep(10)
-    strategy.harvest()
+    tx = strategy.harvest()
     strategy.setHealthCheck(common_health_check, {"from": gov})
 
     # small loss doesn't trigger

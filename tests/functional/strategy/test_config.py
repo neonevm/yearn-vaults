@@ -125,7 +125,7 @@ def test_strategy_setParams(
     try_setParam(gov, gov_allowed)
 
 
-def test_set_strategist_authority(strategy, strategist, rando):
+def test_set_strategist_authority(strategy, strategist, rando, report):
     # Testing setStrategist as a strategist isn't clean with test_strategy_setParams,
     # so this test handles it.
 
@@ -134,11 +134,13 @@ def test_set_strategist_authority(strategy, strategist, rando):
         strategy.setStrategist(rando, {"from": rando})
 
     # As strategist, set strategist to rando.
-    strategy.setStrategist(rando, {"from": strategist})
+    tx = strategy.setStrategist(rando, {"from": strategist})
 
     # Now the original strategist shouldn't be able to set strategist again
     with brownie.reverts("!authorized"):
         strategy.setStrategist(rando, {"from": strategist})
+
+    report.add_action("Set strategist authority", tx.gas_used, tx.gas_price, tx.txid)
 
 
 def test_strategy_setParams_bad_vals(gov, strategist, strategy):

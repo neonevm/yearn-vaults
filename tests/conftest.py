@@ -1,3 +1,4 @@
+import json
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -9,6 +10,7 @@ from eth_account import Account
 from eth_account.messages import encode_structured_data
 
 from brownie import compile_source, Token, Vault, web3, chain
+from utils.report import Report
 
 PACKAGE_VERSION = yaml.safe_load(
     (Path(__file__).parents[1] / "ethpm-config.yaml").read_text()
@@ -197,3 +199,14 @@ def sign_vault_permit():
         return owner.sign_message(permit).signature
 
     return sign_vault_permit
+
+
+@pytest.fixture(scope="session")
+def report():
+    report = Report("Yearn")
+
+    yield report
+    report.save()
+
+
+

@@ -43,6 +43,7 @@ def test_clone(
     guardian,
     TestStrategy,
     rando,
+    report
 ):
 
     tx = strategy.clone(other_vault, {"from": rando})
@@ -72,6 +73,8 @@ def test_clone(
     assert new_strategy.maxReportDelay() == 86400
     assert new_strategy.profitFactor() == 100
     assert new_strategy.debtThreshold() == 0
+
+    report.add_action("Clone strategy", tx.gas_used, tx.gas_price, tx.txid)
 
 
 def test_double_initialize(TestStrategy, vault, other_vault, gov):

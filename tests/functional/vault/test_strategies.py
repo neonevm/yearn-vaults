@@ -261,8 +261,10 @@ def test_updateStrategy(chain, gov, vault, strategy, rando):
     }
 
 
-def test_migrateStrategy(gov, vault, strategy, other_strategy, rando, TestStrategy):
-    vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
+def test_migrateStrategy(gov, vault, strategy, other_strategy, rando, TestStrategy, report):
+    tx = vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
+
+    report.add_action("Add vault strategy", tx.gas_used, tx.gas_price, tx.txid)
 
     # Not just anyone can migrate
     with brownie.reverts():
