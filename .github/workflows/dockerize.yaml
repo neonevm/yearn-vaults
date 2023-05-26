@@ -1,0 +1,25 @@
+on:
+  push:
+  workflow_dispatch:
+env:
+  IMAGE_NAME: neonlabsorg/yearn_tests
+jobs:
+  prepare:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Define tag
+        id: tag
+        run: |
+          if [[ "${{ github.ref_name }}" == 'master'  ]]; then
+            tag='latest'
+          else
+            tag='${{ github.sha }}'
+      - name: Build image
+        run: |
+          docker build -t $IMAGE_NAME:${{ steps.define-env.outputs.tag }} .
+      - name: Push image
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          echo "Push image $IMAGE_NAME:${{ steps.define-env.outputs.tag }} to Docker registry"
+          docker push --all-tags $IMAGE_NAME
