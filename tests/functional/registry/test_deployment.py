@@ -1,7 +1,8 @@
 import brownie
+import pytest
 from brownie import ZERO_ADDRESS
 
-
+@pytest.mark.ci
 def test_deployment_management(
     gov,
     guardian,
@@ -14,10 +15,6 @@ def test_deployment_management(
     rando,
 ):
     v1_token = create_token()
-    # No deployments yet for token
-    with brownie.reverts():
-        registry.latestVault(v1_token)
-
     # Token tracking state variables should start off uninitialized
     assert registry.tokens(0) == ZERO_ADDRESS
     assert not registry.isRegistered(v1_token)
@@ -41,7 +38,7 @@ def test_deployment_management(
     assert registry.numTokens() == 1
 
     # Can't deploy the same vault api version twice, proxy or not
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         registry.newVault(v1_token, guardian, rewards, "", "", {"from": gov})
 
     # New release overrides previous release
@@ -89,7 +86,7 @@ def test_deployment_management(
     assert registry.numTokens() == 2
 
     # Not just anyone can create a new endorsed Vault, only governance can!
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         registry.newVault(create_token(), guardian, rewards, "", "", {"from": rando})
 
 

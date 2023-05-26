@@ -1,26 +1,30 @@
+import time
+
 import pytest
 import brownie
 
 MAX_UINT256 = 2 ** 256 - 1
 
 
-def test_harvest_tend_authority(gov, keeper, strategist, strategy, rando, chain):
+@pytest.mark.ci
+def test_harvest_tend_authority(gov, keeper, strategist, regular_strategy, rando, chain):
+    strategy = regular_strategy
     # Only keeper, strategist, or gov can call tend
     strategy.tend({"from": keeper})
     strategy.tend({"from": strategist})
     strategy.tend({"from": gov})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match='!authorized'):
         strategy.tend({"from": rando})
 
     # Only keeper, strategist, or gov can call harvest
-    chain.sleep(1)
+    time.sleep(1)
     strategy.harvest({"from": keeper})
 
-    chain.sleep(1)
+    time.sleep(1)
     strategy.harvest({"from": strategist})
-    chain.sleep(1)
+    time.sleep(1)
     strategy.harvest({"from": gov})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match='!authorized'):
         strategy.harvest({"from": rando})
 
 

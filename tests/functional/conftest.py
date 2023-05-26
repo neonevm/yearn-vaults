@@ -13,17 +13,14 @@ def rewards(accounts):
     yield accounts[1]
 
 
-
 @pytest.fixture(scope="session")
 def guardian(accounts):
     yield accounts[2]
 
 
-
 @pytest.fixture(scope="session")
 def management(accounts):
     yield accounts[3]
-
 
 
 @pytest.fixture(scope="module")
@@ -35,7 +32,7 @@ def create_token(gov):
     yield create_token
 
 
-@pytest.fixture(scope="module")#(params=[("Normal", 18), ("NoReturn", 18), ("Normal", 8), ("Normal", 2)])
+@pytest.fixture(scope="module")  # (params=[("Normal", 18), ("NoReturn", 18), ("Normal", 8), ("Normal", 2)])
 def token(create_token):
     # NOTE: Run our test suite using both compliant and non-compliant ERC20 Token
     (behaviour, decimal) = ("Normal", 18)
@@ -76,7 +73,6 @@ def keeper(accounts):
     yield accounts[5]
 
 
-
 @pytest.fixture(scope="module", params=["RegularStrategy", "ClonedStrategy"])
 def strategy(gov, strategist, keeper, rewards, vault, TestStrategy, request):
     strategy = strategist.deploy(TestStrategy, vault)
@@ -101,11 +97,50 @@ def strategy(gov, strategist, keeper, rewards, vault, TestStrategy, request):
     yield strategy
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
+def regular_strategy(gov, strategist, keeper, rewards, vault, TestStrategy):
+    strategy = strategist.deploy(TestStrategy, vault)
+
+    strategy.setKeeper(keeper, {"from": strategist})
+    vault.addStrategy(
+        strategy,
+        4_000,  # 40% of Vault
+        0,  # Minimum debt increase per harvest
+        2 ** 256 - 1,  # maximum debt increase per harvest
+        1000,  # 10% performance fee for Strategist
+        {"from": gov},
+    )
+    yield strategy
+
+
+@pytest.fixture(scope="module")
+def cloned_strategy(gov, strategist, keeper, rewards, vault, TestStrategy, request):
+    strategy = strategist.deploy(TestStrategy, vault)
+
+    # deploy the proxy using as logic the original strategy
+    tx = strategy.clone(vault, strategist, rewards, keeper, {"from": strategist})
+    # strategy proxy address is returned in the event `Cloned`
+    strategyAddress = tx.events["Cloned"]["clone"]
+    # redefine strategy as the new proxy deployed
+    strategy = TestStrategy.at(strategyAddress, owner=strategist)
+
+    strategy.setKeeper(keeper, {"from": strategist})
+    vault.addStrategy(
+        strategy,
+        4_000,  # 40% of Vault
+        0,  # Minimum debt increase per harvest
+        2 ** 256 - 1,  # maximum debt increase per harvest
+        1000,  # 10% performance fee for Strategist
+        {"from": gov},
+    )
+    yield strategy
+
+
+@pytest.fixture(scope="session")
 def rando(accounts):
     yield accounts[9]
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def registry(gov, Registry):
     yield gov.deploy(Registry)

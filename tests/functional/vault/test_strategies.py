@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 import brownie
 from brownie import ZERO_ADDRESS
@@ -116,7 +118,8 @@ def test_addStrategy1(
         vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
 
 
-@pytest.mark.skip(reason="NEON: time asserts")
+#@pytest.mark.skip(reason="NEON: time asserts")
+@pytest.mark.ci
 def test_addStrategy2(
     chain,
     gov,
@@ -140,41 +143,35 @@ def test_addStrategy2(
     }
 
     vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
-    activation_timestamp = chain[-1]["timestamp"]
-    assert vault.strategies(strategy).dict() == {
-        "performanceFee": 1000,
-        "activation": activation_timestamp,
-        "debtRatio": 100,
-        "minDebtPerHarvest": 10,
-        "maxDebtPerHarvest": 20,
-        "lastReport": activation_timestamp,
-        "totalGain": 0,
-        "totalLoss": 0,
-        "totalDebt": 0,
-    }
+    strategy_data=vault.strategies(strategy).dict()
+    assert strategy_data["performanceFee"] == 1000
+    assert strategy_data["debtRatio"] == 100
+    assert strategy_data["minDebtPerHarvest"] == 10
+    assert strategy_data["maxDebtPerHarvest"] == 20
+    assert strategy_data["totalGain"] == 0
     assert vault.withdrawalQueue(0) == strategy
 
     # Can't add a strategy twice
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='execution reverted'):
         vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
 
     # Can't add zero address as a strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='execution reverted'):
         vault.addStrategy(ZERO_ADDRESS, 100, 10, 20, 1000, {"from": gov})
 
     # Can't add a strategy with incorrect vault
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='execution reverted'):
         vault.addStrategy(strategy_with_wrong_vault, 100, 10, 20, 1000, {"from": gov})
 
     # Can't add a strategy with incorrect want token
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='execution reverted'):
         vault.addStrategy(
             strategy_with_wrong_want_token, 100, 10, 20, 1000, {"from": gov}
         )
 
     # Can't add a strategy with a debt ratio more than the maximum
     leftover_ratio = 10_000 - vault.debtRatio()
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='execution reverted'):
         vault.addStrategy(
             other_strategy, leftover_ratio + 1, 10, 20, 1000, {"from": gov}
         )

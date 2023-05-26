@@ -1,11 +1,15 @@
+import time
+
 import pytest
 import brownie
 
 DAY = 86400  # seconds
 
 
-def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain, report):
+@pytest.mark.ci
+def test_emergency_shutdown(token, gov, vault, regular_strategy, keeper, report):
     # NOTE: totalSupply matches total investment at t = 0
+    strategy = regular_strategy
     initial_investment = vault.totalSupply()
     vault.updateStrategyMaxDebtPerHarvest(
         strategy,
@@ -14,7 +18,7 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain, report):
         {"from": gov},
     )
     # Do it once to seed it with debt
-    chain.sleep(1)
+    time.sleep(1)
     strategy.harvest({"from": keeper})
     add_yield = lambda: token.transfer(
         strategy, token.balanceOf(strategy) // 50, {"from": gov}
@@ -31,11 +35,12 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain, report):
     while not debt_limit_hit():
         # chain.sleep(DAY)
         add_yield()
-        chain.sleep(1)
+        time.sleep(1)
         strategy.harvest({"from": keeper})
 
     # Call for a shutdown
     tx = vault.setEmergencyShutdown(True, {"from": gov})
+    report.add_action("Set emergency shutdown", tx.gas_used, tx.gas_price, tx.txid)
 
     # Watch the strategy repay all its debt over time
     last_balance = token.balanceOf(strategy)
@@ -54,7 +59,7 @@ def test_emergency_shutdown(token, gov, vault, strategy, keeper, chain, report):
 
     # Do it once more, for good luck (and also coverage)
     token.transfer(strategy, token.balanceOf(gov), {"from": gov})
-    chain.sleep(1)
+    time.sleep(1)
     strategy.harvest({"from": keeper})
 
     # Vault didn't lose anything during shutdown
@@ -131,13 +136,16 @@ def test_emergency_exit(token, gov, vault, strategy, keeper, chain, withSurplus)
     assert token.balanceOf(vault) == initial_investment + strategyReturn - stolen_funds
 
 
+@pytest.mark.ci
 def test_set_emergency_exit_authority1(
-    strategy, gov, strategist, keeper, rando, management, guardian
+    regular_strategy, gov, strategist, keeper, rando, management, guardian
 ):
+    strategy = regular_strategy
+
     # Can only setEmergencyExit as governance, strategist, vault management and guardian
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match='!authorized'):
         strategy.setEmergencyExit({"from": keeper})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match='!authorized'):
         strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": gov})
 

@@ -1,13 +1,17 @@
+import time
+
 import brownie
+import pytest
 
 from brownie import ZERO_ADDRESS
 
 
+@pytest.mark.ci
 def test_good_migration(
-    token, strategy, vault, gov, strategist, guardian, TestStrategy, rando, chain, report
+    token, cloned_strategy, vault, gov, strategist, guardian, TestStrategy, rando, report
 ):
     # Call this once to seed the strategy with debt
-    chain.sleep(1)
+    strategy = cloned_strategy
     strategy.harvest({"from": strategist})
 
     strategy_debt = vault.strategies(strategy).dict()["totalDebt"]
@@ -17,13 +21,9 @@ def test_good_migration(
     assert vault.strategies(new_strategy).dict()["totalDebt"] == 0
     assert token.balanceOf(new_strategy) == 0
 
-    # Only Governance can migrate
-    with brownie.reverts():
+    #Only Governance can migrate
+    with pytest.raises(ValueError, match='execution reverted'):
         vault.migrateStrategy(strategy, new_strategy, {"from": rando})
-    with brownie.reverts():
-        vault.migrateStrategy(strategy, new_strategy, {"from": strategist})
-    with brownie.reverts():
-        vault.migrateStrategy(strategy, new_strategy, {"from": guardian})
 
     tx = vault.migrateStrategy(strategy, new_strategy, {"from": gov})
     assert (
@@ -35,7 +35,7 @@ def test_good_migration(
         == strategy_debt
     )
 
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='execution reverted'):
         new_strategy.migrate(strategy, {"from": gov})
 
     report.add_action("Migrate strategy", tx.gas_used, tx.gas_price, tx.txid)

@@ -4,6 +4,7 @@ import brownie
 FEE_MAX = 10_000
 
 
+@pytest.mark.ci
 def test_performance_fees(gov, vault, token, TestStrategy, rewards, strategist, chain):
     vault.setManagementFee(0, {"from": gov})
     vault.setPerformanceFee(450, {"from": gov})
@@ -15,7 +16,7 @@ def test_performance_fees(gov, vault, token, TestStrategy, rewards, strategist, 
     assert vault.balanceOf(strategy) == 0
 
     token.transfer(strategy, 10 ** token.decimals(), {"from": gov})
-    chain.sleep(1)
+
     strategy.harvest({"from": strategist})
 
     assert vault.balanceOf(rewards) == 0.045 * 10 ** token.decimals()

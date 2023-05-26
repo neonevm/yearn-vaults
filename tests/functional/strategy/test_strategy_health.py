@@ -5,25 +5,25 @@ import brownie
 MAX_BPS = 10_000
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def common_health_check(gov, CommonHealthCheck):
     yield gov.deploy(CommonHealthCheck)
 
-
+@pytest.mark.ci
 def test_set_health_check(gov, rando, strategy, common_health_check):
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='!authorized'):
         strategy.setHealthCheck(common_health_check, {"from": rando})
     strategy.setHealthCheck(common_health_check, {"from": gov})
 
-
+@pytest.mark.ci
 def test_set_do_health_check(gov, rando, strategy):
-    with brownie.reverts():
+    with pytest.raises(ValueError, match='!authorized'):
         strategy.setDoHealthCheck(True, {"from": rando})
     strategy.setDoHealthCheck(True, {"from": gov})
 
-
+@pytest.mark.ci
 def test_strategy_harvest1(vault, gov, strategy, token, common_health_check, chain, report):
-    chain.sleep(10)
+    #chain.sleep(10)
     strategy.harvest()
     strategy.setHealthCheck(common_health_check, {"from": gov})
 

@@ -36,6 +36,7 @@ def test_deposit_with_wrong_recipient(vault, token, gov):
         )
 
 
+@pytest.mark.ci
 def test_deposit_all_and_withdraw_all(gov, vault, token):
     balance = token.balanceOf(gov)
     token.approve(vault, token.balanceOf(gov), {"from": gov})
@@ -95,8 +96,6 @@ def test_deposit_withdraw(gov, vault, token, report):
     assert vault.totalSupply() == token.balanceOf(vault) == 0
     assert vault.totalDebt() == 0
     assert token.balanceOf(gov) == balance
-
-    report.add_action("Deposit vault", tx.gas_used, tx.gas_price, tx.txid)
 
 
 def test_deposit_limit(gov, token, vault):
