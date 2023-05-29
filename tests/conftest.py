@@ -77,7 +77,7 @@ def check_api_adherrance():
     return test_api_adherrance
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def patch_vault_version():
     # NOTE: Cache this result so as not to trigger a recompile for every version change
     @lru_cache

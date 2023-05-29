@@ -1,3 +1,5 @@
+import datetime
+
 import brownie
 import pytest
 
@@ -7,9 +9,12 @@ AMOUNT = 100
 
 
 @pytest.mark.parametrize("expires", [True, False])
+@pytest.mark.ci
 def test_permit(chain, rando, vault, sign_vault_permit, expires):
     owner = Account.create()
-    deadline = chain[-1].timestamp + 3600 if expires else 0
+    timestamp = datetime.datetime.now()
+    timestamp = int(timestamp.timestamp())
+    deadline = timestamp + 3600 if expires else 0
     signature = sign_vault_permit(
         vault, owner, str(rando), allowance=AMOUNT, deadline=deadline
     )

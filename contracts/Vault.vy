@@ -1194,22 +1194,22 @@ def addStrategy(
         The fee the strategist will receive based on this Vault's performance.
     """
     # Check if queue is full
-    assert self.withdrawalQueue[MAXIMUM_STRATEGIES - 1] == ZERO_ADDRESS
+    assert self.withdrawalQueue[MAXIMUM_STRATEGIES - 1] == ZERO_ADDRESS, "queue is full"
 
     # Check calling conditions
-    assert not self.emergencyShutdown
-    assert msg.sender == self.governance
+    assert not self.emergencyShutdown, "emergencyShutdown"
+    assert msg.sender == self.governance, "msg.sender != self.governance"
 
     # Check strategy configuration
-    assert strategy != ZERO_ADDRESS
-    assert self.strategies[strategy].activation == 0
-    assert self == Strategy(strategy).vault()
-    assert self.token.address == Strategy(strategy).want()
+    assert strategy != ZERO_ADDRESS, "strategy == ZERO_ADDRESS"
+    assert self.strategies[strategy].activation == 0, "activation is not 0"
+    assert self == Strategy(strategy).vault(), "self != Strategy(strategy).vault()"
+    assert self.token.address == Strategy(strategy).want(), "self.token.address != Strategy(strategy).want()"
 
     # Check strategy parameters
-    assert self.debtRatio + debtRatio <= MAX_BPS
-    assert minDebtPerHarvest <= maxDebtPerHarvest
-    assert performanceFee <= MAX_BPS / 2 
+    assert self.debtRatio + debtRatio <= MAX_BPS, "self.debtRatio + debtRatio > MAX_BPS"
+    assert minDebtPerHarvest <= maxDebtPerHarvest, "minDebtPerHarvest > maxDebtPerHarvest"
+    assert performanceFee <= MAX_BPS / 2 , "performanceFee > MAX_BPS / 2"
 
     # Add strategy to approved strategies
     self.strategies[strategy] = StrategyParams({

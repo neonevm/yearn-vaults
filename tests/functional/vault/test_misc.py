@@ -93,6 +93,7 @@ def test_credit_available_minDebtPerHarvest_larger_than_available(
     assert creditAvalable == 0
 
 
+@pytest.mark.ci
 def test_regular_available_deposit_limit(Vault, token, gov):
     vault = gov.deploy(Vault)
     vault.initialize(

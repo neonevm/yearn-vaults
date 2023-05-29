@@ -3,7 +3,6 @@ networks:
   default: development
   live:
     default_contract_owner: true
-
 autofetch_sources: true
 
 # require OpenZepplin Contracts

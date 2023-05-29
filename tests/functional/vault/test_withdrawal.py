@@ -4,7 +4,8 @@ import brownie
 MAX_UINT256 = 2 ** 256 - 1
 
 
-def test_multiple_withdrawals(token, gov, Vault, TestStrategy, chain):
+@pytest.mark.ci
+def test_multiple_withdrawals(token, gov, Vault, TestStrategy, report):
     # Need a fresh vault to do this math right
     vault = Vault.deploy({"from": gov})
     vault.initialize(
@@ -32,7 +33,6 @@ def test_multiple_withdrawals(token, gov, Vault, TestStrategy, chain):
             0,  # No fee
             {"from": gov},
         )
-    chain.sleep(1)
 
     for s in strategies:  # Seed all the strategies with debt
         s.harvest({"from": gov})
@@ -42,7 +42,9 @@ def test_multiple_withdrawals(token, gov, Vault, TestStrategy, chain):
         assert s.estimatedTotalAssets() == token.balanceOf(s) == starting_balance // 10
 
     # Withdraw only from Vault
-    vault.withdraw(vault.balanceOf(gov) // 2, {"from": gov})
+    tx = vault.withdraw(vault.balanceOf(gov) // 2, {"from": gov})
+    report.add_action("Withdraw from vault", tx.gas_used, tx.gas_price, tx.txid)
+
     assert token.balanceOf(vault) == 0
     for s in strategies:  # No change
         assert s.estimatedTotalAssets() == token.balanceOf(s) == starting_balance // 10

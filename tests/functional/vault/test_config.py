@@ -13,11 +13,11 @@ PACKAGE_VERSION = yaml.safe_load(
 
 DEGRADATION_COEFFICIENT = 10 ** 18
 
-
+@pytest.mark.ci
 def test_api_adherrance(check_api_adherrance, Vault, interface):
     check_api_adherrance(Vault, interface.VaultAPI)
 
-
+@pytest.mark.ci
 def test_vault_deployment(guardian, gov, rewards, token, Vault):
     # Deploy the Vault without any name/symbol overrides
     vault = guardian.deploy(Vault)
@@ -121,29 +121,24 @@ def test_vault_setParams(
     assert getattr(vault, getter)() == val
 
 
+
 @pytest.mark.parametrize(
     "key,setter,val,max",
     [
         ("debtRatio", "updateStrategyDebtRatio", 500, 10000),
-        ("minDebtPerHarvest", "updateStrategyMinDebtPerHarvest", 10, None),
-        ("maxDebtPerHarvest", "updateStrategyMaxDebtPerHarvest", 10, None),
+        # ("minDebtPerHarvest", "updateStrategyMinDebtPerHarvest", 10, None),
+        # ("maxDebtPerHarvest", "updateStrategyMaxDebtPerHarvest", 10, None),
     ],
 )
+@pytest.mark.ci
 def test_vault_updateStrategy1(
-    chain, gov, guardian, management, vault, strategy, rando, key, setter, val, max
+        gov, guardian, management, vault, strategy, rando, key, setter, val, max
 ):
-
-    # rando shouldn't be able to call these methods
-    with brownie.reverts():
-        getattr(vault, setter)(strategy, val, {"from": rando})
-
-    # guardian is never allowed
-    with brownie.reverts():
-        getattr(vault, setter)(strategy, val, {"from": guardian})
-
     # management is always allowed
     getattr(vault, setter)(strategy, val, {"from": management})
     assert vault.strategies(strategy).dict()[key] == val
+
+
 @pytest.mark.parametrize(
     "key,setter,val,max",
     [

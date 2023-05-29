@@ -3,19 +3,19 @@ import brownie
 from brownie import ZERO_ADDRESS
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def other_token(gov, Token):
     yield gov.deploy(Token, 18)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def other_vault(gov, Vault, other_token):
     vault = gov.deploy(Vault)
     vault.initialize(other_token, gov, gov, "", "", gov, gov)
     yield vault
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def strategy(gov, strategist, keeper, rewards, vault, TestStrategy):
     strategy = strategist.deploy(TestStrategy, vault)
 
@@ -31,6 +31,7 @@ def strategy(gov, strategist, keeper, rewards, vault, TestStrategy):
     yield strategy
 
 
+@pytest.mark.ci
 def test_clone(
     Token,
     token,
@@ -61,7 +62,7 @@ def test_clone(
     new_strategy = TestStrategy.at(address)
 
     assert new_strategy.isOriginal() == False
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted: !clone"):
         new_strategy.clone(other_vault, {"from": rando})
 
     assert new_strategy.strategist() == gov
@@ -76,10 +77,10 @@ def test_clone(
 
     report.add_action("Clone strategy", tx.gas_used, tx.gas_price, tx.txid)
 
-
+@pytest.mark.ci
 def test_double_initialize(TestStrategy, vault, other_vault, gov):
     strategy = gov.deploy(TestStrategy, vault)
 
     # Sholdn't be able to initialize twice
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="Strategy already initialized"):
         strategy.initialize(other_vault, gov, gov, gov)
