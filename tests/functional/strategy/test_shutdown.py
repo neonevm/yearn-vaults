@@ -143,9 +143,9 @@ def test_set_emergency_exit_authority1(
     strategy = regular_strategy
 
     # Can only setEmergencyExit as governance, strategist, vault management and guardian
-    with pytest.raises(ValueError, match='!authorized'):
+    with brownie.reverts("!authorized"):
         strategy.setEmergencyExit({"from": keeper})
-    with pytest.raises(ValueError, match='!authorized'):
+    with brownie.reverts("!authorized"):
         strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": gov})
 

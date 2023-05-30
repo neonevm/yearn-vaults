@@ -38,7 +38,7 @@ def test_deployment_management(
     assert registry.numTokens() == 1
 
     # Can't deploy the same vault api version twice, proxy or not
-    with pytest.raises(ValueError, match="execution reverted"):
+    with brownie.reverts():
         registry.newVault(v1_token, guardian, rewards, "", "", {"from": gov})
 
     # New release overrides previous release
@@ -86,7 +86,7 @@ def test_deployment_management(
     assert registry.numTokens() == 2
 
     # Not just anyone can create a new endorsed Vault, only governance can!
-    with pytest.raises(ValueError, match="execution reverted"):
+    with brownie.reverts():
         registry.newVault(create_token(), guardian, rewards, "", "", {"from": rando})
 
 

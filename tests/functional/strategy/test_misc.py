@@ -13,7 +13,7 @@ def test_harvest_tend_authority(gov, keeper, strategist, regular_strategy, rando
     strategy.tend({"from": keeper})
     strategy.tend({"from": strategist})
     strategy.tend({"from": gov})
-    with pytest.raises(ValueError, match='!authorized'):
+    with brownie.reverts("!authorized"):
         strategy.tend({"from": rando})
 
     # Only keeper, strategist, or gov can call harvest
@@ -24,7 +24,7 @@ def test_harvest_tend_authority(gov, keeper, strategist, regular_strategy, rando
     strategy.harvest({"from": strategist})
     time.sleep(1)
     strategy.harvest({"from": gov})
-    with pytest.raises(ValueError, match='!authorized'):
+    with brownie.reverts("!authorized"):
         strategy.harvest({"from": rando})
 
 
