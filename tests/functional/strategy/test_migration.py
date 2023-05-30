@@ -22,7 +22,7 @@ def test_good_migration(
     assert token.balanceOf(new_strategy) == 0
 
     #Only Governance can migrate
-    with pytest.raises(ValueError, match='execution reverted'):
+    with brownie.reverts():
         vault.migrateStrategy(strategy, new_strategy, {"from": rando})
 
     tx = vault.migrateStrategy(strategy, new_strategy, {"from": gov})
@@ -35,7 +35,7 @@ def test_good_migration(
         == strategy_debt
     )
 
-    with pytest.raises(ValueError, match='execution reverted'):
+    with brownie.reverts():
         new_strategy.migrate(strategy, {"from": gov})
 
     report.add_action("Migrate strategy", tx.gas_used, tx.gas_price, tx.txid)

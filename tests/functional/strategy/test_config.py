@@ -114,7 +114,8 @@ def test_strategy_setParams(
             getattr(strategy, setter)(prev_val, {"from": caller})
             assert getattr(strategy, getter)() == prev_val
         else:
-            with pytest.raises(ValueError, match=authority_error):
+            with brownie.reverts(authority_error):
+
                 getattr(strategy, setter)(val, {"from": caller})
 
     try_setParam(strategist, strategist_allowed)
@@ -126,14 +127,14 @@ def test_set_strategist_authority(strategy, strategist, rando, report):
     # so this test handles it.
 
     # Only gov or strategist can setStrategist
-    with pytest.raises(ValueError, match="!authorized"):
+    with brownie.reverts("!authorized"):
         strategy.setStrategist(rando, {"from": rando})
 
     # As strategist, set strategist to rando.
     tx = strategy.setStrategist(rando, {"from": strategist})
 
     # Now the original strategist shouldn't be able to set strategist again
-    with pytest.raises(ValueError, match="!authorized"):
+    with brownie.reverts("!authorized"):
         strategy.setStrategist(rando, {"from": strategist})
 
     report.add_action("Set strategist authority", tx.gas_used, tx.gas_price, tx.txid)

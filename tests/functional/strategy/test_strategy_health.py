@@ -11,13 +11,13 @@ def common_health_check(gov, CommonHealthCheck):
 
 @pytest.mark.ci
 def test_set_health_check(gov, rando, strategy, common_health_check):
-    with pytest.raises(ValueError, match='!authorized'):
+    with brownie.reverts("!authorized"):
         strategy.setHealthCheck(common_health_check, {"from": rando})
     strategy.setHealthCheck(common_health_check, {"from": gov})
 
 @pytest.mark.ci
 def test_set_do_health_check(gov, rando, strategy):
-    with pytest.raises(ValueError, match='!authorized'):
+    with brownie.reverts("!authorized"):
         strategy.setDoHealthCheck(True, {"from": rando})
     strategy.setDoHealthCheck(True, {"from": gov})
 
