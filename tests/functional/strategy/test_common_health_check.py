@@ -1,5 +1,4 @@
 import pytest
-import brownie
 
 
 MAX_BPS = 10_000
@@ -11,7 +10,7 @@ def common_health_check(gov, CommonHealthCheck):
 
 
 def test_set_goverance(gov, rando, common_health_check):
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
        common_health_check.setGovernance(rando, {"from": rando})
     common_health_check.setGovernance(rando, {"from": gov})
 

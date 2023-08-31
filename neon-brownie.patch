@@ -14,18 +14,6 @@ diff -ur brownie.orig/exceptions.py brownie/exceptions.py
 diff -ur brownie.orig/network/account.py brownie/network/account.py
 --- brownie.orig/network/account.py	2022-09-29 12:53:05.360807566 +0000
 +++ brownie/network/account.py	2022-09-29 14:10:24.570151366 +0000
-@@ -426,7 +426,10 @@
- 
-         if isinstance(gas_limit, bool) or gas_limit in (None, "auto"):
-             gas_buffer = gas_buffer or CONFIG.active_network["settings"]["gas_buffer"]
--            gas_limit = self.estimate_gas(to, amount, 0, data or "")
-+            try:
-+                gas_limit = self.estimate_gas(to, amount, 0, data or "")
-+            except:
-+                gas_limit = 15000000
-             if gas_limit > 21000 and gas_buffer != 1:
-                 gas_limit = Wei(gas_limit * gas_buffer)
-                 return min(gas_limit, Chain().block_gas_limit)
 @@ -750,7 +753,7 @@
                  except ValueError as e:
                      if txid is None:

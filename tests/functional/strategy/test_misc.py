@@ -13,7 +13,7 @@ def test_harvest_tend_authority(gov, keeper, strategist, regular_strategy, rando
     strategy.tend({"from": keeper})
     strategy.tend({"from": strategist})
     strategy.tend({"from": gov})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.tend({"from": rando})
 
     # Only keeper, strategist, or gov can call harvest
@@ -24,7 +24,7 @@ def test_harvest_tend_authority(gov, keeper, strategist, regular_strategy, rando
     strategy.harvest({"from": strategist})
     time.sleep(1)
     strategy.harvest({"from": gov})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.harvest({"from": rando})
 
 
@@ -101,23 +101,23 @@ def test_sweep_authority(
     assert management != gov
 
     # Random people cannot sweep
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.sweep(other_token, {"from": rando})
 
     # Strategist cannot sweep
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.sweep(other_token, {"from": strategist})
 
     # Keeper cannot sweep
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.sweep(other_token, {"from": keeper})
 
     # Guardians cannot sweep
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.sweep(other_token, {"from": guardian})
 
     # Management cannot sweep
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.sweep(other_token, {"from": management})
 
     # Governance can sweep
@@ -134,15 +134,15 @@ def test_sweep(gov, vault, strategy, rando, token, other_token):
     token.transfer(strategy, token.balanceOf(gov), {"from": gov})
     assert token.address == strategy.want()
     assert token.balanceOf(strategy) > 0
-    with brownie.reverts("!want"):
+    with pytest.raises(ValueError, match="!want"):
         strategy.sweep(token, {"from": gov})
 
     # Vault share token doesn't work
-    with brownie.reverts("!shares"):
+    with pytest.raises(ValueError, match="!shares"):
         strategy.sweep(vault.address, {"from": gov})
 
     # Protected token doesn't work
-    with brownie.reverts("!protected"):
+    with pytest.raises(ValueError, match="!protected"):
         strategy.sweep(strategy.protectedToken(), {"from": gov})
 
     # But any other random token works
@@ -151,7 +151,7 @@ def test_sweep(gov, vault, strategy, rando, token, other_token):
     assert other_token.balanceOf(strategy) > 0
     assert other_token.balanceOf(gov) == 0
     # Not any random person can do this
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.sweep(other_token, {"from": rando})
 
     before = other_token.balanceOf(strategy)
@@ -173,12 +173,12 @@ def test_reject_ether(gov, strategy):
         ("setEmergencyExit", []),
         ("sweep", ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"]),
     ]:
-        with brownie.reverts("Cannot send ether to nonpayable function"):
+        with pytest.raises(ValueError, match="Cannot send ether to nonpayable function"):
             # NOTE: gov can do anything
             getattr(strategy, func)(*args, {"from": gov, "value": 1})
 
     # Fallback fails too
-    with brownie.reverts("Cannot send ether to nonpayable function"):
+    with pytest.raises(ValueError, match="Cannot send ether to nonpayable function"):
         gov.transfer(strategy, 1)
 
 
@@ -190,7 +190,7 @@ def test_set_metadataURI(gov, strategy, strategist, rando):
     assert strategy.metadataURI() == "ipfs://test2"
     strategy.setMetadataURI("ipfs://test3", {"from": strategist})
     assert strategy.metadataURI() == "ipfs://test3"
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setMetadataURI("ipfs://fake", {"from": rando})
 
 

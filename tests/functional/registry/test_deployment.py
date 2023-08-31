@@ -1,4 +1,3 @@
-import brownie
 import pytest
 from brownie import ZERO_ADDRESS
 
@@ -38,7 +37,7 @@ def test_deployment_management(
     assert registry.numTokens() == 1
 
     # Can't deploy the same vault api version twice, proxy or not
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         registry.newVault(v1_token, guardian, rewards, "", "", {"from": gov})
 
     # New release overrides previous release
@@ -86,7 +85,7 @@ def test_deployment_management(
     assert registry.numTokens() == 2
 
     # Not just anyone can create a new endorsed Vault, only governance can!
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         registry.newVault(create_token(), guardian, rewards, "", "", {"from": rando})
 
 
@@ -110,11 +109,11 @@ def test_experimental_deployments(
     experimental_vault = Vault.at(res)
 
     # Experimental Vaults do not count towards deployments
-    with brownie.reverts():
-        registry.latestVault(token)
+    with pytest.raises(ValueError, match="execution reverted"):
+        registry.latestVault(token,{"allow_revert":True})
 
     # You can't endorse a vault if governance isn't set properly
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         registry.endorseVault(experimental_vault, {"from": gov})
 
     experimental_vault.setGovernance(gov, {"from": rando})
@@ -142,7 +141,7 @@ def test_experimental_deployments(
         token, gov, gov, gov, "", "", {"from": rando}
     )
     experimental_vault = Vault.at(res)
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         registry.endorseVault(experimental_vault, {"from": gov})
 
     # You can only endorse a vault if it creates a new deployment
@@ -173,5 +172,5 @@ def test_experimental_deployments(
 
     # Only governance can endorse a Vault
     vault = create_vault()
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         registry.endorseVault(vault, {"from": rando})

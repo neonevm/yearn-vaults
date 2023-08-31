@@ -22,7 +22,7 @@ def test_good_migration(
     assert token.balanceOf(new_strategy) == 0
 
     #Only Governance can migrate
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(strategy, new_strategy, {"from": rando})
 
     tx = vault.migrateStrategy(strategy, new_strategy, {"from": gov})
@@ -35,7 +35,7 @@ def test_good_migration(
         == strategy_debt
     )
 
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         new_strategy.migrate(strategy, {"from": gov})
 
     report.add_action("Migrate strategy", tx.gas_used, tx.gas_price, tx.txid)
@@ -52,17 +52,17 @@ def test_bad_migration(
     new_strategy = strategist.deploy(TestStrategy, different_vault)
 
     # Can't migrate to a strategy with a different vault
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(strategy, new_strategy, {"from": gov})
 
     new_strategy = strategist.deploy(TestStrategy, vault)
 
     # Can't migrate if you're not the Vault  or governance
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.migrate(new_strategy, {"from": rando})
 
     # Can't migrate if new strategy is 0x0
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(strategy, ZERO_ADDRESS, {"from": gov})
 
 
@@ -83,5 +83,5 @@ def test_migrated_strategy_can_call_harvest(
 
     # But after migrated it cannot be added back
     vault.updateStrategyDebtRatio(new_strategy, 5_000, {"from": gov})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(strategy, 5_000, 0, 1000, 0, {"from": gov})

@@ -82,8 +82,6 @@ def test_startup(token, gov, vault, cloned_strategy, keeper, chain):
     assert not debt_limit_hit()
     while not debt_limit_hit():
 
-        #chain.sleep(1)
-        # chain.mine(timestamp=chain.time() + DAY)
         assert expectedReturn() > 0
         token.transfer(strategy, expectedReturn(), {"from": gov})
         time.sleep(1)

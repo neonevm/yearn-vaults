@@ -143,9 +143,9 @@ def test_set_emergency_exit_authority1(
     strategy = regular_strategy
 
     # Can only setEmergencyExit as governance, strategist, vault management and guardian
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": keeper})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": gov})
 
@@ -154,9 +154,9 @@ def test_set_emergency_exit_authority2(
     strategy, gov, strategist, keeper, rando, management, guardian
 ):
     # Can only setEmergencyExit as governance, strategist, vault management and guardian
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": keeper})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": strategist})
 
@@ -165,9 +165,9 @@ def test_set_emergency_exit_authority3(
     strategy, gov, strategist, keeper, rando, management, guardian
 ):
     # Can only setEmergencyExit as governance, strategist, vault management and guardian
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": keeper})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": management})
 
@@ -176,8 +176,8 @@ def test_set_emergency_exit_authority4(
     strategy, gov, strategist, keeper, rando, management, guardian
 ):
     # Can only setEmergencyExit as governance, strategist, vault management and guardian
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": keeper})
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setEmergencyExit({"from": rando})
     strategy.setEmergencyExit({"from": guardian})

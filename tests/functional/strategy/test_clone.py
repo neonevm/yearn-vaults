@@ -1,6 +1,4 @@
 import pytest
-import brownie
-from brownie import ZERO_ADDRESS
 
 
 @pytest.fixture(scope="module")
@@ -62,7 +60,7 @@ def test_clone(
     new_strategy = TestStrategy.at(address)
 
     assert new_strategy.isOriginal() == False
-    with brownie.reverts("!clone"):
+    with pytest.raises(ValueError, match="!clone"):
         new_strategy.clone(other_vault, {"from": rando})
 
     assert new_strategy.strategist() == gov
@@ -82,5 +80,6 @@ def test_double_initialize(TestStrategy, vault, other_vault, gov):
     strategy = gov.deploy(TestStrategy, vault)
 
     # Sholdn't be able to initialize twice
-    with brownie.reverts("Strategy already initialized"):
+    with pytest.raises(ValueError, match="Strategy already initialized"):
+
         strategy.initialize(other_vault, gov, gov, gov)

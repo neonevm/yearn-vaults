@@ -1,5 +1,4 @@
 import pytest
-import brownie
 
 
 MAX_BPS = 10_000
@@ -11,19 +10,18 @@ def common_health_check(gov, CommonHealthCheck):
 
 @pytest.mark.ci
 def test_set_health_check(gov, rando, strategy, common_health_check):
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setHealthCheck(common_health_check, {"from": rando})
     strategy.setHealthCheck(common_health_check, {"from": gov})
 
 @pytest.mark.ci
 def test_set_do_health_check(gov, rando, strategy):
-    with brownie.reverts("!authorized"):
+    with pytest.raises(ValueError, match="!authorized"):
         strategy.setDoHealthCheck(True, {"from": rando})
     strategy.setDoHealthCheck(True, {"from": gov})
 
 @pytest.mark.ci
 def test_strategy_harvest1(vault, gov, strategy, token, common_health_check, chain, report):
-    #chain.sleep(10)
     strategy.harvest()
     strategy.setHealthCheck(common_health_check, {"from": gov})
 
@@ -44,7 +42,7 @@ def test_strategy_harvest2(vault, gov, strategy, token, common_health_check, cha
     balance = strategy.estimatedTotalAssets()
     token.transfer(strategy, balance * 0.05)
 
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.harvest()
 
     strategy.setDoHealthCheck(False, {"from": gov})
@@ -65,7 +63,7 @@ def test_strategy_harvest3(vault, gov, strategy, token, common_health_check, cha
     balance = strategy.estimatedTotalAssets()
     strategy._takeFunds(balance * 0.03)
 
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.harvest()
 
     strategy.setDoHealthCheck(False, {"from": gov})
@@ -98,5 +96,5 @@ def test_strategy_harvest_custom_limits2(
     )  # big gain no loss
 
     strategy._takeFunds(1)
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.harvest()

@@ -17,7 +17,7 @@ def test_withdraw(chain, gov, token, vault, strategy, rando):
     assert strategy.estimatedTotalAssets() == balance - balance // 2
 
     # Not just anyone can call it
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         strategy.withdraw(balance // 2, {"from": rando})
 
     # Anything over what we can liquidate is totally withdrawn
