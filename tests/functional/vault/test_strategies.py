@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 import brownie
 from brownie import ZERO_ADDRESS
@@ -152,26 +150,26 @@ def test_addStrategy2(
     assert vault.withdrawalQueue(0) == strategy
 
     # Can't add a strategy twice
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
 
     # Can't add zero address as a strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(ZERO_ADDRESS, 100, 10, 20, 1000, {"from": gov})
 
     # Can't add a strategy with incorrect vault
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(strategy_with_wrong_vault, 100, 10, 20, 1000, {"from": gov})
 
     # Can't add a strategy with incorrect want token
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(
             strategy_with_wrong_want_token, 100, 10, 20, 1000, {"from": gov}
         )
 
     # Can't add a strategy with a debt ratio more than the maximum
     leftover_ratio = 10_000 - vault.debtRatio()
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(
             other_strategy, leftover_ratio + 1, 10, 20, 1000, {"from": gov}
         )
@@ -183,26 +181,26 @@ def test_addStrategy2(
 @pytest.mark.skip(reason="NEON: time asserts")
 def test_updateStrategy(chain, gov, vault, strategy, rando):
     # Can't update an unapproved strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyDebtRatio(strategy, 500, {"from": gov})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyMinDebtPerHarvest(strategy, 15, {"from": gov})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyMaxDebtPerHarvest(strategy, 15, {"from": gov})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyPerformanceFee(strategy, 75, {"from": gov})
 
     vault.addStrategy(strategy, 100, 10, 20, 1000, {"from": gov})
     activation_timestamp = chain[-1]["timestamp"]
 
     # Not just anyone can update a strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyDebtRatio(strategy, 500, {"from": rando})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyMinDebtPerHarvest(strategy, 15, {"from": rando})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyMaxDebtPerHarvest(strategy, 15, {"from": rando})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.updateStrategyPerformanceFee(strategy, 75, {"from": rando})
 
     vault.updateStrategyDebtRatio(strategy, 500, {"from": gov})
@@ -264,15 +262,15 @@ def test_migrateStrategy(gov, vault, strategy, other_strategy, rando, TestStrate
     report.add_action("Add vault strategy", tx.gas_used, tx.gas_price, tx.txid)
 
     # Not just anyone can migrate
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(strategy, rando, {"from": rando})
 
     # Can't migrate to itself
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(strategy, strategy, {"from": gov})
 
     # Can't migrate from an unactivated strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(other_strategy, strategy, {"from": gov})
 
     # Migrating not in the withdrawal queue (for coverage)
@@ -281,17 +279,17 @@ def test_migrateStrategy(gov, vault, strategy, other_strategy, rando, TestStrate
     vault.migrateStrategy(strategy, new_strategy, {"from": gov})
 
     # Can't migrate back again
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(new_strategy, strategy, {"from": gov})
 
     # Can't migrate an unapproved strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(new_strategy, strategy, {"from": gov})
 
     # Can't migrate to an already approved strategy
     approved_strategy = gov.deploy(TestStrategy, vault)
     vault.addStrategy(approved_strategy, 100, 10, 20, 1000, {"from": gov})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.migrateStrategy(strategy, approved_strategy, {"from": gov})
 
 
@@ -301,15 +299,15 @@ def test_revokeStrategy(chain, gov, vault, strategy, rando):
     activation_timestamp = chain[-1]["timestamp"]
 
     # Not just anyone can revoke a strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.revokeStrategy(strategy, {"from": rando})
 
     vault.revokeStrategy(strategy, {"from": gov})
     # do not revoke twice
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.revokeStrategy(strategy, {"from": gov})
     # do not revoke non-existing strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.revokeStrategy(ZERO_ADDRESS, {"from": gov})
 
     assert vault.strategies(strategy).dict() == {
@@ -328,7 +326,7 @@ def test_revokeStrategy(chain, gov, vault, strategy, rando):
     vault.removeStrategyFromQueue(strategy, {"from": gov})
     assert vault.withdrawalQueue(0) == ZERO_ADDRESS
     # Can only do it once
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.removeStrategyFromQueue(strategy, {"from": gov})
 
 
@@ -337,7 +335,7 @@ def test_ordering(gov, vault, TestStrategy, rando):
     strategies = [gov.deploy(TestStrategy, vault) for _ in range(19)]
 
     # Can't add un-approved strategies
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.setWithdrawalQueue(
             strategies + [ZERO_ADDRESS] * (20 - len(strategies)),
             {"from": gov},
@@ -352,7 +350,7 @@ def test_ordering(gov, vault, TestStrategy, rando):
     # Show that strategies can be reordered
     strategies = list(reversed(strategies))
     # NOTE: Not just anyone can do this
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.setWithdrawalQueue(
             strategies + [ZERO_ADDRESS] * (20 - len(strategies)),
             {"from": rando},
@@ -365,14 +363,14 @@ def test_ordering(gov, vault, TestStrategy, rando):
     other_strat = gov.deploy(TestStrategy, vault)
 
     # Do not add a strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.setWithdrawalQueue(
             strategies + [other_strat] * (20 - len(strategies)),
             {"from": gov},
         )
 
     # Do not remove strategies
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.setWithdrawalQueue(
             strategies[0:-2] + [ZERO_ADDRESS] * (20 - len(strategies[0:-2])),
             {"from": gov},
@@ -381,14 +379,14 @@ def test_ordering(gov, vault, TestStrategy, rando):
     # Do not add new strategies
     other_strategy_list = strategies.copy()
     other_strategy_list[0] = other_strat
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.setWithdrawalQueue(
             other_strategy_list + [ZERO_ADDRESS] * (20 - len(other_strategy_list)),
             {"from": gov},
         )
 
     # can't use the same strategy twice
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.setWithdrawalQueue(
             [strategies[0], strategies[0]] + [ZERO_ADDRESS] * 18,
             {"from": rando},
@@ -406,7 +404,7 @@ def test_ordering(gov, vault, TestStrategy, rando):
         assert vault.withdrawalQueue(idx) == strategy
 
     # NOTE: limited to only a certain amount of strategies
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(
             gov.deploy(TestStrategy, vault), 100, 10, 20, 1000, {"from": gov}
         )
@@ -414,7 +412,7 @@ def test_ordering(gov, vault, TestStrategy, rando):
     # Show that removing from the middle properly orders
     removed_strategy = strategies.pop(1)
     # NOTE: Not just anyone can do this
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.removeStrategyFromQueue(removed_strategy, {"from": rando})
 
     vault.removeStrategyFromQueue(removed_strategy, {"from": gov})
@@ -425,15 +423,15 @@ def test_ordering(gov, vault, TestStrategy, rando):
     assert vault.withdrawalQueue(len(strategies)) == ZERO_ADDRESS
 
     # Not just anyone can add it back
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(removed_strategy, {"from": rando})
 
     # Can't add an unauthorized strategy
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(rando, {"from": gov})
 
     # Can't add a strategy 0x0 to queue
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(ZERO_ADDRESS, {"from": gov})
 
     vault.addStrategyToQueue(removed_strategy, {"from": gov})
@@ -443,7 +441,7 @@ def test_ordering(gov, vault, TestStrategy, rando):
         assert vault.withdrawalQueue(idx) == strategy
 
     # Can't add the same strategy twice
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(removed_strategy, {"from": gov})
 
 
@@ -451,7 +449,7 @@ def test_addStategyToQueue(
     gov, management, vault, TestStrategy, strategy, other_strategy, rando
 ):
     # Can't add an unactivated strategy to queue
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(strategy, {"from": gov})
 
     # Initialize strategies (keep other_strategy in queue to test the queue)
@@ -460,7 +458,7 @@ def test_addStategyToQueue(
     vault.addStrategy(other_strategy, 100, 10, 20, 1000, {"from": gov})
 
     # Not just anyone can add a strategy to the queue
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(strategy, {"from": rando})
 
     # Governance can add a strategy to the queue
@@ -473,7 +471,7 @@ def test_addStategyToQueue(
 
     # Can't add an existing strategy to the queue
     vault.addStrategyToQueue(strategy, {"from": gov})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(strategy, {"from": gov})
     vault.removeStrategyFromQueue(strategy, {"from": gov})
     vault.removeStrategyFromQueue(other_strategy, {"from": gov})
@@ -482,13 +480,13 @@ def test_addStategyToQueue(
     strategies = [gov.deploy(TestStrategy, vault) for _ in range(20)]
     for s in strategies:
         vault.addStrategy(s, 100, 10, 20, 1000, {"from": gov})
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategyToQueue(strategy, {"from": gov})
 
 
 def test_reporting(vault, token, strategy, gov, rando):
     # Not just anyone can call `Vault.report()`
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.report(0, 0, 0, {"from": rando})
 
     strategy.tend({"from": gov})  # Do this for converage of `Strategy.tend()`
@@ -615,13 +613,13 @@ def test_update_debtRatio_to_add_second_strategy(gov, vault, strategy, other_str
     vault.addStrategy(strategy, 10_000, 0, 0, 0, {"from": gov})
 
     # Can't add a second strategy if first one is taking 100%
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(other_strategy, 5_000, 0, 0, 0, {"from": gov})
 
     vault.updateStrategyDebtRatio(strategy, 5_000, {"from": gov})
 
     # Can't add the second strategy going over 100%
-    with brownie.reverts():
+    with pytest.raises(ValueError, match="execution reverted"):
         vault.addStrategy(other_strategy, 5_001, 0, 0, 0, {"from": gov})
 
     # But 50% should work
