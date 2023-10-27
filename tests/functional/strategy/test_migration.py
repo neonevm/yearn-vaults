@@ -6,7 +6,6 @@ import pytest
 from brownie import ZERO_ADDRESS
 
 
-@pytest.mark.ci
 def test_good_migration(
     token, cloned_strategy, vault, gov, strategist, guardian, TestStrategy, rando, report
 ):
